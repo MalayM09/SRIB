@@ -1,0 +1,30 @@
+run:
+  name: p1_pcen_on
+  seed: 1337
+  device: cuda
+  out_dir: /kaggle/working/runs/p1_pcen_on
+
+data:
+  root: data/speech_commands_v2
+  batch_size: 256
+  num_workers: 4
+  sample_rate: 16000
+
+model:
+  trunk: bc_resnet8
+  use_pcen: true         # flip to false for the log-Mel run
+  n_mels: 40
+  num_classes: 12
+
+optim:
+  lr: 4.0e-3
+  weight_decay: 1.0e-4
+  epochs: 25
+  scheduler: cosine
+  warmup_epochs: 2
+
+augment:
+  specaugment: true
+  rir_prob: 0.5
+  musan_prob: 0.7
+  snr_range: [-5, 20]

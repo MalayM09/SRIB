@@ -1,0 +1,30 @@
+run:
+  name: smoke
+  seed: 1337
+  device: mps
+  out_dir: runs/smoke
+
+data:
+  root: ../data/speech_commands_v2
+  subset_train: 5000
+  batch_size: 128
+  num_workers: 1
+  sample_rate: 16000
+
+model:
+  trunk: bc_resnet8
+  use_pcen: true
+  n_mels: 40
+  num_classes: 12
+
+optim:
+  lr: 4.0e-3
+  weight_decay: 1.0e-4
+  epochs: 4
+  scheduler: cosine
+
+augment:
+  specaugment: true
+  rir_prob: 0.0           # off for smoke — speeds up dataloading on M1
+  musan_prob: 0.0
+  snr_range: [0, 20]

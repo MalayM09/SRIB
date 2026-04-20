@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "srib-edge-kws-sv"
+version = "0.1.0"
+description = "Edge-AI speaker-specific custom word detection — pilot scaffold"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+  "torch==2.3.1",
+  "torchaudio==2.3.1",
+  "numpy==1.26.4",
+  "soundfile==0.12.1",
+  "librosa==0.10.2.post1",
+  "pyyaml==6.0.2",
+  "tqdm==4.66.4",
+  "einops==0.8.0",
+  "pytest==8.3.2",
+  "matplotlib==3.9.2",
+  "tensorboard==2.17.1",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

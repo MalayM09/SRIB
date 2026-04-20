@@ -1,0 +1,71 @@
+direction: right
+title: "Multi-Teacher Knowledge Distillation — 5 Loss Terms" {
+  near: top-center
+  shape: text
+  style.font-size: 20
+  style.bold: true
+}
+
+audio: "Augmented audio\n(RIR + MUSAN + codec)" {
+  shape: cylinder
+  style.fill: "#f1f5f9"
+}
+
+# --- Teachers ---
+teachers: "Frozen Teachers" {
+  style.fill: "#dbeafe"
+  style.stroke: "#1d4ed8"
+
+  wavlm: "WavLM-Base+\n(12-layer transformer, frozen)" {
+    style.fill: "#bfdbfe"
+  }
+  probe: "KWS probe\n(2-layer MLP, ~50K)\ntrained once on SC" {
+    style.fill: "#bfdbfe"
+  }
+  ecapa: "ECAPA-TDNN\n(speechbrain, frozen)" {
+    style.fill: "#bfdbfe"
+  }
+  wavlm -> probe: "layer-9 features"
+}
+
+# --- Student ---
+student: "Student\nBC-ResNet-8 + TRM + FiLM\n(~1.13M params)" {
+  style.fill: "#ecfccb"
+  style.stroke: "#65a30d"
+  style.bold: true
+}
+
+# --- Loss terms ---
+loss: "Total Loss (5 terms)" {
+  style.fill: "#fef3c7"
+  style.stroke: "#b45309"
+
+  l1: "L_kws = Focal\n(student_logits, y_word)" {style.fill: "#fef3c7"}
+  l2: "L_sv = SubCenter-AAM\n(emb, y_spk, K=3)" {style.fill: "#fef3c7"}
+  l3: "L_kd_logit =\nT²·KL(stu_kws/T ‖ probe/T)" {style.fill: "#fed7aa"}
+  l4: "L_kd_hint =\nMSE(stu_feat, Σ wᵢ·WavLM_i)\ni ∈ {4, 8, 11}, wᵢ learnable" {style.fill: "#fed7aa"}
+  l5: "L_kd_ecapa =\n(1 − cos(emb, ECAPA_final))\n+ 0.3·MSE on blocks 2,3" {style.fill: "#fed7aa"}
+}
+
+# --- Wiring ---
+audio -> teachers.wavlm
+audio -> teachers.ecapa
+audio -> student
+
+student -> loss.l1: "student KWS logits"
+student -> loss.l2: "student emb"
+
+teachers.probe -> loss.l3
+student -> loss.l3: "student KWS / T"
+
+teachers.wavlm -> loss.l4: "layers {4,8,11}"
+student -> loss.l4: "post-trunk feat"
+
+teachers.ecapa -> loss.l5: "final emb + blocks 2,3"
+student -> loss.l5: "student emb + feat"
+
+note: "Correction vs v2: teacher and student see the SAME augmented waveform\n(symmetric augmentation avoids student collapse to teacher's clean manifold)" {
+  shape: text
+  style.font-size: 12
+  style.italic: true
+}

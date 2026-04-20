@@ -1,0 +1,22 @@
+---
+title: "FAR-in-the-Loop: the novelty claim"
+---
+flowchart LR
+    A["Student forward pass<br/>(training batch)"] --> B["Training loss<br/>(5 terms)"]
+    B --> G["Backward + optimizer step"]
+    G --> A
+
+    A -. every 500 steps .-> C["Forward pass on<br/>held-out imposter pool<br/>(~2000 clips)"]
+    C --> D["Estimate τ_s such that<br/>FA/hr = 1"]
+    D --> E["Measure FRR at τ_s<br/>on held-out positives"]
+    E --> F["Add λ_far · FRR<br/>as soft penalty"]
+    F -. fed into next .-> B
+
+    style F fill:#fecaca,stroke:#b91c1c,stroke-width:2px
+    style D fill:#fecaca,stroke:#b91c1c,stroke-width:2px
+    style C fill:#fef3c7,stroke:#b45309
+    style E fill:#fef3c7,stroke:#b45309
+
+    classDef note fill:#f1f5f9,stroke:#64748b,color:#334155
+    N["Bakes the deployment operating point<br/>(FA &lt; 1/hr) into the embedding geometry<br/>— not a post-hoc threshold"]:::note
+    F -.-> N

@@ -1,0 +1,30 @@
+run:
+  name: p0_baseline
+  seed: 1337
+  device: cuda
+  out_dir: /kaggle/working/runs/p0
+
+data:
+  root: data/speech_commands_v2
+  subset_train: null
+  batch_size: 256
+  num_workers: 4
+  sample_rate: 16000
+
+model:
+  trunk: bc_resnet8
+  use_pcen: true
+  n_mels: 40
+  num_classes: 12
+
+optim:
+  lr: 4.0e-3
+  weight_decay: 1.0e-4
+  epochs: 30
+  scheduler: cosine
+  warmup_epochs: 2
+
+augment:
+  specaugment: true
+  rir_prob: 0.0
+  musan_prob: 0.0

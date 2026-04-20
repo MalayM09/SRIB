@@ -1,0 +1,30 @@
+run:
+  name: p2_film_toy
+  seed: 1337
+  device: cuda
+  out_dir: /kaggle/working/runs/p2
+
+data:
+  root: data/speech_commands_v2
+  trigger_word: yes
+  enrolled_speakers: 5
+  utterances_per_speaker: 5
+  batch_size: 128
+  num_workers: 4
+  sample_rate: 16000
+
+model:
+  trunk: bc_resnet8
+  use_pcen: true
+  load_from: /kaggle/working/runs/p0/final.pt
+  freeze_trunk: true
+  film: true
+  film_dim: 192
+  n_mels: 40
+  num_classes: 12
+
+optim:
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+  epochs: 5
+  scheduler: cosine

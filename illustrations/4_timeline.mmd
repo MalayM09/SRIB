@@ -1,0 +1,28 @@
+---
+title: "Build Timeline — Phase 1 Blueprint to Grand Finale"
+---
+gantt
+    dateFormat YYYY-MM-DD
+    axisFormat %d %b
+    tickInterval 1week
+
+    section Phase 1 (Blueprint)
+    Pilot baseline (SC V2, clean)     :active, p1, 2026-04-19, 4d
+    Diagrams + blueprint polish       :p2, after p1, 3d
+    Blueprint submission              :milestone, m1, 2026-04-26, 0d
+
+    section Phase 2 Build
+    Stage 0 — WavLM probe training    :s0, 2026-04-27, 2d
+    Stage 1 — Backbone warm-up        :s1, after s0, 4d
+    Stage 2 — Joint MT + all KD       :crit, s2, after s1, 10d
+    Stage 3 — Trigger + τ_s loop      :crit, s3, after s2, 5d
+    Stage 4 — QAT + INT8 ONNX export  :s4, after s3, 3d
+    Pi 4B latency benchmarks          :b1, after s4, 2d
+
+    section Optuna
+    Stage-2 TPE search (40 trials)    :o1, 2026-05-05, 10d
+
+    section Finale
+    Ablation runs + evaluation        :f1, after b1, 3d
+    Demo + rehearsal                  :f2, after f1, 2d
+    On-site finale (Bengaluru)        :milestone, m2, 2026-05-30, 0d

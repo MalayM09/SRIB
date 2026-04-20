@@ -1,0 +1,38 @@
+---
+title: "Enrollment + Runtime Inference — Streaming on Edge"
+---
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant D as Edge device<br/>(Pi 4B / Galaxy)
+    participant S as Student model<br/>(INT8 ONNX)
+    participant M as Memory<br/>(template, τ_k, τ_s)
+
+    rect rgb(240, 253, 244)
+    Note over U,M: Enrollment (one-time, offline, ~60s)
+    U->>D: 5 clean utterances of trigger
+    loop 5 times
+        D->>S: PCEN → trunk → SV branch
+        S-->>D: 192-d embedding
+    end
+    D->>D: mean-pool → L2-normalize
+    D->>D: calibrate τ_k, τ_s on user's own<br/>negative speech (2 min)
+    D->>M: store template (768 B) + thresholds
+    end
+
+    rect rgb(254, 249, 195)
+    Note over U,M: Runtime (streaming, 160 ms chunks)
+    loop every 160 ms chunk
+        U->>D: audio chunk (1600 samples)
+        D->>D: PCEN state update (stateful op)
+        D->>S: forward (INT8)
+        S-->>D: kws_prob, sv_emb
+        D->>M: fetch template
+        D->>D: cos_sim(sv_emb, template)
+        alt kws_prob > τ_k AND cos_sim > τ_s
+            D-->>U: ✓ trigger fires
+        else
+            D-->>U: (silent)
+        end
+    end
+    end

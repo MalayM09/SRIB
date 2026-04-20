@@ -1,0 +1,426 @@
+% ============================================================
+% AX Hackathon — Phase 1 Blueprint
+% Problem: Speech Disentanglement — Speaker-Specific Custom Word Detection
+% Compile: xelatex blueprint.tex  (preferred) OR pdflatex blueprint.tex
+% If metropolis theme is missing: tlmgr install beamertheme-metropolis pgfopts
+% ============================================================
+\documentclass[aspectratio=169,10pt]{beamer}
+
+% ---------- Theme ----------
+\usetheme{metropolis}
+\metroset{
+  progressbar=frametitle,
+  numbering=fraction,
+  block=fill,
+  sectionpage=progressbar,
+  subsectionpage=progressbar
+}
+
+% ---------- Packages ----------
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{tikz}
+\usepackage{fontawesome5}
+\usetikzlibrary{positioning,arrows.meta,shapes.geometric,backgrounds,fit}
+
+% ---------- Samsung-adjacent palette ----------
+\definecolor{sriblue}{HTML}{1428A0}
+\definecolor{sridark}{HTML}{0C2340}
+\definecolor{sriaccent}{HTML}{1E88E5}
+\definecolor{srired}{HTML}{B91C1C}
+\definecolor{srigold}{HTML}{B45309}
+\definecolor{srigreen}{HTML}{65A30D}
+\definecolor{sribg}{HTML}{F8FAFC}
+\definecolor{srigray}{HTML}{475569}
+
+\setbeamercolor{normal text}{fg=sridark}
+\setbeamercolor{frametitle}{bg=sridark,fg=white}
+\setbeamercolor{progress bar}{fg=sriaccent,bg=sriaccent!30}
+\setbeamercolor{title separator}{fg=sriaccent}
+\setbeamercolor{alerted text}{fg=srired}
+
+% ---------- Footer ----------
+\setbeamertemplate{footline}{%
+  \leavevmode\hbox{%
+    \begin{beamercolorbox}[wd=.45\paperwidth,ht=2.4ex,dp=1ex,leftskip=1em]{author in head/foot}%
+      \color{srigray}\small AX Hackathon Phase 1 Blueprint \textbar{} Team \textbf{<TEAM NAME>}%
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.4\paperwidth,ht=2.4ex,dp=1ex]{title in head/foot}%
+      \color{srigray}\small Speech Disentanglement \textbar{} Speaker-Specific Custom Word Detection%
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.15\paperwidth,ht=2.4ex,dp=1ex,rightskip=1em]{date in head/foot}%
+      \hfill\color{srigray}\small\insertframenumber\,/\,\inserttotalframenumber%
+    \end{beamercolorbox}}%
+}
+
+% ---------- Helper commands ----------
+\newcommand{\highlight}[1]{\textcolor{srired}{\textbf{#1}}}
+\newcommand{\kpi}[1]{\textcolor{sriblue}{\textbf{#1}}}
+\newcommand{\novel}[1]{\textcolor{srigold}{\textbf{#1}}}
+\newcommand{\illus}[1]{illustrations/#1}
+
+% ---------- Title info ----------
+\title{Edge-AI Speech Disentanglement}
+\subtitle{Speaker-Specific Custom Word Detection under -5\,dB SNR on <3\,M parameters}
+\author{Team \textbf{<TEAM NAME>}}
+\institute{Samsung \texttt{ennovateX} AX Hackathon — Phase 1 Blueprint}
+\date{April 2026}
+
+% ============================================================
+\begin{document}
+
+% ============== SLIDE 1 — TEAM INTRODUCTION ==============
+\begin{frame}[plain]
+  \titlepage
+  \vspace{-0.8em}
+  \begin{center}
+    \small\color{srigray}
+    \textit{Apache-2.0 licensed submission \textbar{} All code, weights, and a derived open benchmark will be released publicly.}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Team Introduction}
+  \vspace{-0.3em}
+  \textbf{\color{sriblue}Team Name:} \texttt{<TEAM NAME>} \hfill
+  \textbf{\color{sriblue}Problem:} \texttt{<PROBLEM NUMBER>} — Speech Disentanglement
+  \vspace{0.8em}
+
+  \begin{columns}[T, onlytextwidth]
+    \column{0.48\textwidth}
+      \begin{block}{Team Member 1}
+        \begin{tabular}{@{}ll@{}}
+          Name     & \texttt{<FILL>} \\
+          College  & \texttt{<FILL>} \\
+          Email ID & \texttt{<FILL>} \\
+          Dept.    & \texttt{<FILL>} \\
+          Year     & \texttt{<FILL>} \\
+        \end{tabular}
+      \end{block}
+    \column{0.48\textwidth}
+      \begin{block}{Team Member 2}
+        \begin{tabular}{@{}ll@{}}
+          Name     & \texttt{<FILL>} \\
+          College  & \texttt{<FILL>} \\
+          Email ID & \texttt{<FILL>} \\
+          Dept.    & \texttt{<FILL>} \\
+          Year     & \texttt{<FILL>} \\
+        \end{tabular}
+      \end{block}
+  \end{columns}
+\end{frame}
+
+% ============== SLIDE 2 — PROBLEM STATEMENT ==============
+\begin{frame}{Problem Statement \& Why It Matters}
+  \begin{columns}[T, onlytextwidth]
+    \column{0.55\textwidth}
+      \textbf{\color{sriblue}Selected problem.} Speech disentanglement for speaker-specific custom word detection at the extreme edge.
+      \vspace{0.6em}
+
+      \textbf{\color{sriblue}The challenge.}
+      A voice trigger must wake a device \emph{only} when:
+      \begin{itemize}\setlength\itemsep{2pt}
+        \item the \highlight{right person} speaks
+        \item the \highlight{right word} — rejecting phonetic look-alikes
+        \item under crowd / babble / traffic noise (-5\,dB to 30\,dB SNR)
+        \item at 0.5\,m to 5\,m distance
+        \item with \highlight{$<$3\,M parameters} and \highlight{$<$0.2\,s xRT}
+      \end{itemize}
+      \vspace{0.4em}
+
+      \textbf{\color{sriblue}Why it matters.} Enables private, offline-first, personalized wake-words on phones, earbuds, hearables, and smart-home hubs — without cloud offload or raw audio leaving the device.
+    \column{0.45\textwidth}
+      \begin{block}{Target KPIs (from brief)}
+        \centering\small
+        \begin{tabular}{@{}lr@{}}
+          \toprule
+          Metric & Target \\
+          \midrule
+          True Acceptance — Clean & $\geq 99\%$ \\
+          True Acceptance — Noisy & $\geq 90\%$ \\
+          False Acceptance        & $< 1$/hr \\
+          SNR range               & -5 to 30\,dB \\
+          Distance range          & 0.5 to 5\,m \\
+          Speakers supported      & Male + Female \\
+          Parameters              & $< 3$\,M \\
+          Execution time (xRT)    & $< 0.2$\,s \\
+          \bottomrule
+        \end{tabular}
+      \end{block}
+      \vspace{0.3em}
+      \small\color{srigray}
+      \textit{Regime where standard log-Mel + ResNet pipelines break down and Transformer-based KWS misses the latency budget.}
+  \end{columns}
+\end{frame}
+
+% ============== SLIDE 3 — PROPOSED SOLUTION (HIGH LEVEL) ==============
+\begin{frame}{Proposed Solution — High Level}
+  \textbf{\color{sriblue}One sentence.}
+  A single $\sim$930\,K-parameter student model jointly performs Keyword Spotting (KWS) and Speaker Verification (SV), distilled from two frozen SOTA teachers, with speaker-conditioned classification and a FAR-aware training loop.
+  \vspace{0.6em}
+
+  \begin{columns}[T, onlytextwidth]
+    \column{0.33\textwidth}
+      \begin{block}{\color{sriblue}1. Robust Frontend}
+        Learnable PCEN on Mel — survives -5\,dB SNR where log-Mel collapses. Equivalent to LEAF in practice at a fraction of the compute.\footnotemark[1]
+      \end{block}
+    \column{0.33\textwidth}
+      \begin{block}{\color{sriblue}2. Compact Joint Student}
+        Modified BC-ResNet-8 with TRM branching, MQMHA pooling on SV head, and \novel{FiLM-conditioned KWS head} (speaker embedding modulates the classifier).
+      \end{block}
+    \column{0.33\textwidth}
+      \begin{block}{\color{sriblue}3. Multi-Teacher KD + FAR Loop}
+        WavLM-Base+ (phonetic) + ECAPA-TDNN (biometric) teachers. Training loop includes \novel{online $\tau_s$ calibration} that bakes the $<$1\,FA/hr operating point into the embedding geometry.
+      \end{block}
+  \end{columns}
+  \vfill
+  \footnotetext[1]{\color{srigray}\scriptsize LEAF analysis (arXiv:2404.06702): only PCEN sub-layer actually trains; filterbanks and low-pass stay near initialization.}
+\end{frame}
+
+% ============== SLIDE 4 — TECHNICAL DETAILS: ARCHITECTURE ==============
+\begin{frame}{Technical Details — System Architecture}
+  \vspace{-0.4em}
+  \centering
+  \includegraphics[width=\textwidth,height=0.72\textheight,keepaspectratio]{\illus{1_architecture.png}}
+  \vspace{-0.3em}
+  {\scriptsize\color{srigray}
+   Shared trunk (blue) $\to$ Task Representation Modules (yellow) $\to$ KWS / SV branches (green) $\to$ FiLM modulation (red) conditions KWS on speaker embedding (stop-gradient on forward).}
+\end{frame}
+
+% ============== SLIDE 5 — TECHNICAL DETAILS: DISTILLATION ==============
+\begin{frame}{Technical Details — Multi-Teacher Knowledge Distillation}
+  \vspace{-0.4em}
+  \centering
+  \includegraphics[width=\textwidth,height=0.62\textheight,keepaspectratio]{\illus{2_distillation.png}}
+  \vspace{-0.2em}
+  {\scriptsize
+  \[
+    \mathcal{L}_{\text{total}} =
+    \lambda_1\,\mathcal{L}_\text{KWS}^{\text{Focal}} +
+    \lambda_2\,\mathcal{L}_\text{SV}^{\text{SubCtr-AAM}} +
+    \lambda_3\,T^2\mathrm{KL}(\text{stu}_\text{kws}/T\,\|\,\text{probe}/T) +
+    \lambda_4\,\mathcal{L}_\text{hint}^{\{4,8,11\}} +
+    \lambda_5\,\mathcal{L}_\text{ECAPA}^{\text{multi-level}}
+  \]}
+\end{frame}
+
+% ============== SLIDE 6 — TECHNICAL DETAILS: PARAM BUDGET & STAGES ==============
+\begin{frame}{Technical Details — Parameter Budget \& Training Stages}
+  \begin{columns}[T, onlytextwidth]
+    \column{0.53\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{\illus{6_param_budget.png}}
+    \column{0.47\textwidth}
+      \small
+      \begin{block}{4-Stage Training ($\sim$36 Kaggle GPU-hrs)}
+        \begin{tabular}{@{}p{2.6cm}p{4.0cm}@{}}
+          \toprule
+          \textbf{Stage} & \textbf{Purpose} \\
+          \midrule
+          0. WavLM probe     & Train KWS probing head on frozen WavLM (one-time) \\
+          1. Warm-up         & Stabilize PCEN \& trunk on SC only \\
+          2. Joint MT + KD   & All 5 loss terms + FiLM + TRM active \\
+          3. Trigger FT      & Custom-trigger specialization + \novel{online $\tau_s$ loop} \\
+          4. QAT             & INT8 quant-aware training \\
+          \bottomrule
+        \end{tabular}
+      \end{block}
+      \textbf{\color{sriblue}Headroom:} 69\% under the 3\,M cap — room for QAT scale/zero-point tensors and late-stage capacity additions without refactor.
+  \end{columns}
+\end{frame}
+
+% ============== SLIDE 7 — TIMELINE ==============
+\begin{frame}{Technical Details — Execution Timeline}
+  \vspace{-0.3em}
+  \centering
+  \includegraphics[width=\textwidth,height=0.65\textheight,keepaspectratio]{\illus{4_timeline.png}}
+  \vspace{0.2em}
+  \begin{columns}[T, onlytextwidth]
+    \column{0.5\textwidth}
+      \small\textbf{\color{sriblue}Compute plan:}
+      Kaggle free tier (T4 / P100) — all training fits in 12-hour session limits with checkpoint-and-resume.
+    \column{0.5\textwidth}
+      \small\textbf{\color{sriblue}Deployment:}
+      PyTorch QAT $\to$ ONNX opset 17 $\to$ ORT INT8 static. Benchmarked on Raspberry Pi 4B as conservative spec; also exportable to Galaxy NPU via QNN.
+  \end{columns}
+\end{frame}
+
+% ============== SLIDE 8 — NOVELTY HERO: FAR-IN-THE-LOOP ==============
+\begin{frame}{Novelty \& Innovation — FAR-in-the-Loop Training}
+  \vspace{-0.3em}
+  \begin{columns}[T, onlytextwidth]
+    \column{0.62\textwidth}
+      \includegraphics[width=\linewidth,height=0.68\textheight,keepaspectratio]{\illus{3_far_in_loop.png}}
+    \column{0.38\textwidth}
+      \small
+      \textbf{\color{srired}Core invention.}
+      The deployment false-accept threshold $\tau_s$ is re-estimated every 500 training steps on a held-out imposter pool. The resulting FRR-at-target-FAR is fed back as a \novel{differentiable soft penalty}.
+      \vspace{0.5em}
+
+      \textbf{\color{sriblue}Why it matters.}
+      Conventional pipelines treat $\tau_s$ as a post-hoc deployment knob. If the training loss never sees the $<$1\,FA/hr constraint, the embedding geometry cannot cluster tightly enough for \emph{any} threshold to satisfy it.\footnotemark[2]
+      \vspace{0.5em}
+
+      \textbf{\color{sriblue}Result.}
+      The operating point is baked into the embedding geometry — not tuned around it.
+  \end{columns}
+  \footnotetext[2]{\color{srigray}\scriptsize PK-MTL (arXiv:2206.13708) reports vanilla BC-ResNet hits 64.32\% FRR in target-only KWS; task-adaptive training brings this to 6.56\%.}
+\end{frame}
+
+% ============== SLIDE 9 — NOVELTY: ADDITIONAL INNOVATIONS ==============
+\begin{frame}{Novelty \& Innovation — Supporting Contributions}
+  \small
+  \begin{columns}[T, onlytextwidth]
+    \column{0.5\textwidth}
+      \begin{block}{\color{srired}Structural FA rejection via FiLM}
+        KWS classifier weights are \novel{speaker-conditioned}. Imposter audio flows through the wrong $(\gamma,\beta)$ modulation and the keyword logit collapses — structural rejection, not threshold-based.\footnotemark[3]
+      \end{block}
+      \begin{block}{\color{srired}Layer-ensemble WavLM distillation}
+        Learnable softmax weights over WavLM layers $\{4, 8, 11\}$ — outperforms single-layer distillation.\footnotemark[4]
+      \end{block}
+      \begin{block}{\color{srired}Multi-level ECAPA distillation}
+        Cosine on final embedding + MSE on block-2 and block-3 features (projected via $1{\times}1$ conv). $\sim$5\% relative EER gain.\footnotemark[5]
+      \end{block}
+    \column{0.5\textwidth}
+      \begin{block}{Considered \& rejected alternatives}
+        \renewcommand{\arraystretch}{1.1}
+        \begin{tabular}{@{}p{2.3cm}p{5.0cm}@{}}
+          \toprule
+          \textbf{Option} & \textbf{Rejected because} \\
+          \midrule
+          Audio Mamba & Needs 5$\times$ BC-ResNet params for equal clean acc.; no noise-robust results; deployment immature \\
+          LEAF / SincNet & LEAF analysis shows only PCEN actually trains — already covered \\
+          GRL adversarial & Removes the speaker signal we \emph{need} for personalized KWS \\
+          Deep cross-attn & 4$\times$ compute — breaks xRT budget \\
+          \bottomrule
+        \end{tabular}
+      \end{block}
+  \end{columns}
+  \footnotetext[3]{\color{srigray}\scriptsize FiLM for personalized KWS: arXiv:2311.03419 — 2-6\% relative EER reduction at $<$1\% param overhead.}
+  \footnotetext[4]{\color{srigray}\scriptsize SKILL, Interspeech 2024 (arXiv:2402.16830).}
+  \footnotetext[5]{\color{srigray}\scriptsize Multi-level X-vector KD, arXiv:2303.01125.}
+\end{frame}
+
+% ============== SLIDE 10 — ENROLLMENT + DEMO PLAN ==============
+\begin{frame}{Deployment \& Demo Plan (for Grand Finale)}
+  \vspace{-0.2em}
+  \begin{columns}[T, onlytextwidth]
+    \column{0.56\textwidth}
+      \includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{\illus{5_enrollment_runtime.png}}
+    \column{0.44\textwidth}
+      \small
+      \begin{block}{Live demo script}
+        \begin{enumerate}\setlength\itemsep{3pt}
+          \item Enroll a live judge: 5 clean utterances ($\sim$30\,s).
+          \item \textbf{Clean trigger} from judge $\to$ \kpi{fires}.
+          \item \textbf{Noisy trigger} — traffic at -5\,dB from phone speaker $\to$ \kpi{fires}.
+          \item \textbf{Imposter} (teammate) says the same word $\to$ \alert{rejected}.
+          \item \textbf{Confusable} phrase (`turn on' vs `turn off') $\to$ \alert{rejected}.
+        \end{enumerate}
+      \end{block}
+      \begin{block}{Hardware}
+        Raspberry Pi 4B (conservative) or Galaxy-class NPU via QNN. No network connection during demo.
+      \end{block}
+  \end{columns}
+\end{frame}
+
+% ============== SLIDE 11 — OPEN DATASETS ==============
+\begin{frame}{Open Datasets — Used \& Published}
+  \small
+  \begin{block}{To be used (all permissively licensed)}
+    \centering
+    \begin{tabular}{@{}p{3.5cm}p{7.5cm}p{2.0cm}@{}}
+      \toprule
+      \textbf{Dataset} & \textbf{Role} & \textbf{Licence} \\
+      \midrule
+      Google Speech Commands v0.02 & KWS positives + general negatives & CC-BY 4.0 \\
+      VoxCeleb1                    & Speaker verification + imposter pool & CC-BY 4.0 \\
+      LibriPhrase                  & Joint phrase + speaker fine-tuning & MIT \\
+      MUSAN                        & Crowd / babble / traffic noise injection (-5 to 30\,dB) & CC-BY 4.0 \\
+      OpenSLR RIRs                 & Room impulse responses — 0.5--5\,m distance simulation & Apache-2.0 \\
+      CMUdict + TIMIT phone-conf.  & G2P + phonetic confusable mining & BSD / public \\
+      \bottomrule
+    \end{tabular}
+  \end{block}
+  \begin{block}{\color{srigold}To be published (open-source deliverable)}
+    \textbf{Confusable-Trigger Benchmark.} For any chosen trigger word: the top-50 mined phonetic confusables synthesized in 100+ XTTS-v2 voices, each passed through the RIR + MUSAN augmentation pipeline. \novel{First public benchmark explicitly targeting the $<$1\,FA/hr regime} in personalized KWS. Released under \textbf{Apache-2.0}.
+  \end{block}
+\end{frame}
+
+% ============== SLIDE 12 — OPEN MODELS ==============
+\begin{frame}{Open Models — Used \& Developed}
+  \small
+  \begin{block}{Used as frozen teachers / utilities}
+    \centering
+    \begin{tabular}{@{}p{3.2cm}p{6.0cm}p{3.5cm}@{}}
+      \toprule
+      \textbf{Model} & \textbf{Role} & \textbf{Source / Licence} \\
+      \midrule
+      WavLM-Base+  & Phonetic, noise-robust teacher    & \texttt{microsoft/wavlm-base-plus} \ MIT \\
+      ECAPA-TDNN   & Speaker biometric teacher          & \texttt{speechbrain/spkrec-ecapa} \ Apache-2.0 \\
+      XTTS-v2      & Multi-voice TTS for trigger / confusable augmentation & \texttt{coqui/XTTS-v2} \ CPML \\
+      g2p-en       & Trigger G2P $\to$ ARPAbet phones   & Apache-2.0 \\
+      \bottomrule
+    \end{tabular}
+  \end{block}
+  \begin{block}{\color{srigold}Developed \& trained from scratch (our contribution)}
+    \centering
+    \begin{tabular}{@{}p{6.0cm}p{4.5cm}p{2.0cm}@{}}
+      \toprule
+      \textbf{Model} & \textbf{Description} & \textbf{Licence} \\
+      \midrule
+      Modified BC-ResNet-8 + TRM + FiLM + MQMHA  & Joint KWS + SV student, $\sim$930\,K params & Apache-2.0 \\
+      WavLM $\to$ KWS probing head                & 2-layer MLP, $\sim$50\,K params              & Apache-2.0 \\
+      INT8 ONNX deployable artifact               & Streaming, stateful PCEN                     & Apache-2.0 \\
+      \bottomrule
+    \end{tabular}
+  \end{block}
+\end{frame}
+
+% ============== SLIDE 13 — AI / GENAI / TOOLS & BEST PRACTICES ==============
+\begin{frame}{AI / GenAI / Agentic Tools \& Best Practices Uncovered}
+  \small
+  \begin{columns}[T, onlytextwidth]
+    \column{0.45\textwidth}
+      \begin{block}{\color{sriblue}Tools}
+        \begin{itemize}\setlength\itemsep{2pt}
+          \item \textbf{PyTorch 2.x} + \texttt{torch.compile} — $\sim$15\% train speedup.
+          \item \textbf{HuggingFace / SpeechBrain} for frozen teacher inference.
+          \item \textbf{Coqui XTTS-v2} — generative-AI speaker diversity for trigger synthesis.
+          \item \textbf{LLM-driven adversarial confusable generator} (Llama-3-8B, in-context prompt) extends CMUdict-based mining with open-vocabulary near-misses.
+          \item \textbf{Optuna TPE} — automated Stage-2 multi-task hyperparameter search.
+          \item \textbf{ONNX Runtime + Quantization Toolkit} — edge export + benchmarking.
+          \item \textbf{Google \texttt{kws\_streaming}} — reference for stateful streaming inference.
+        \end{itemize}
+      \end{block}
+    \column{0.55\textwidth}
+      \begin{block}{\color{srigold}Best practices documented in release}
+        \begin{enumerate}\setlength\itemsep{2pt}
+          \item \textbf{Symmetric augmentation in distillation.} Teacher and student must see the \emph{same} augmented audio — asymmetric pairing collapses the student to the teacher's clean manifold.
+          \item \textbf{Multi-level KD beats single-layer KD} for both phonetic (WavLM) and biometric (ECAPA) teachers.
+          \item \textbf{Bake the operating point into training.} Online $\tau_s$ calibration — FAR-in-the-Loop.
+          \item \textbf{Structural conditioning $>$ threshold gating.} FiLM-modulated KWS outperforms the AND-of-two-classifiers pattern on FA.
+          \item \textbf{Curriculum on SNR, not just on data.} Ramp 30\,dB $\to$ -5\,dB across first 15 epochs.
+          \item \textbf{TRM $>$ PCGrad} for MTL gradient decoupling in this regime.
+        \end{enumerate}
+      \end{block}
+  \end{columns}
+  \vspace{0.2em}
+  \centering
+  \small\color{srigray}\textit{Full licence statement: all code, model weights, and benchmarks released under Apache-2.0, per hackathon rules.}
+\end{frame}
+
+% ============== CLOSING ==============
+\begin{frame}[standout]
+  \centering
+  \textbf{Closing the FA $<$ 1/hr gap on $<$3\,M params}\\[0.5em]
+  \normalsize FAR-in-the-Loop training  $\cdot$  FiLM-conditioned KWS  $\cdot$  Multi-teacher distillation\\[1em]
+  \small\color{srigray}Team \texttt{<TEAM NAME>}  $\cdot$  Problem \texttt{<PROBLEM NUMBER>}  $\cdot$  Apache-2.0
+\end{frame}
+
+\end{document}

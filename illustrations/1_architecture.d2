@@ -1,0 +1,99 @@
+direction: right
+title: "System Architecture — Joint KWS + SV Student Model (~1.13M params)" {
+  near: top-center
+  shape: text
+  style.font-size: 20
+  style.bold: true
+}
+
+audio: "raw audio\n16 kHz" {
+  shape: cylinder
+  style.fill: "#f1f5f9"
+}
+
+frontend: "Frontend" {
+  style.fill: "#e0e7ff"
+  style.stroke: "#4338ca"
+
+  pre: "PreEmphasis\n0.97"
+  mel: "MelSpec\n40 bins"
+  pcen: "Learnable PCEN\nα, δ, r, s"
+  pre -> mel -> pcen
+}
+
+trunk: "BC-ResNet-8 shared trunk\n(4 blocks, ~420K params)" {
+  style.fill: "#e0e7ff"
+  style.stroke: "#4338ca"
+}
+
+trm_k: "TRM_kws\n1×1 conv + LN" {
+  style.fill: "#fef3c7"
+  style.stroke: "#b45309"
+}
+trm_s: "TRM_sv\n1×1 conv + LN" {
+  style.fill: "#fef3c7"
+  style.stroke: "#b45309"
+}
+
+kws_branch: "KWS branch\n2 BC-ResNet blocks\n+ freq pooling" {
+  style.fill: "#ecfccb"
+  style.stroke: "#65a30d"
+}
+
+sv_branch: "SV branch\n2 BC-ResNet blocks\n+ MQMHA pooling" {
+  style.fill: "#ecfccb"
+  style.stroke: "#65a30d"
+}
+
+film: "FiLM\nγ ⊙ x + β" {
+  shape: hexagon
+  style.fill: "#fecaca"
+  style.stroke: "#b91c1c"
+  style.bold: true
+}
+
+film_gen: "FiLM generator\n2-layer MLP\n(~8K params)" {
+  style.fill: "#fecaca"
+  style.stroke: "#b91c1c"
+}
+
+kws_head: "KWS head\n→ V+1 logits" {
+  style.fill: "#ddd6fe"
+  style.stroke: "#6d28d9"
+}
+sv_head: "SV head\n→ 192-d L2-norm\nembedding" {
+  style.fill: "#ddd6fe"
+  style.stroke: "#6d28d9"
+}
+
+template: "Enrolled user\ntemplate\n(192-d, cached)" {
+  shape: stored_data
+  style.fill: "#f1f5f9"
+}
+
+decision: "detect =\n(kws_prob > τ_k)\nAND\n(cos(emb,template) > τ_s)" {
+  shape: cloud
+  style.fill: "#fef3c7"
+  style.bold: true
+}
+
+audio -> frontend.pre
+frontend.pcen -> trunk
+trunk -> trm_k -> kws_branch
+trunk -> trm_s -> sv_branch
+
+sv_branch -> film_gen: "speaker emb\n(stop-grad)" {
+  style.stroke: "#b91c1c"
+  style.stroke-dash: 3
+}
+kws_branch -> film: "kws_feat"
+film_gen -> film: "γ, β"
+film -> kws_head
+
+sv_branch -> sv_head
+sv_head -> template: "enrollment\n(one-time)" {
+  style.stroke-dash: 3
+}
+template -> decision: "cos sim"
+sv_head -> decision: "runtime emb"
+kws_head -> decision: "word logits"
