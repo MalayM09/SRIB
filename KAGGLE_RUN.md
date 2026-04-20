@@ -32,14 +32,23 @@ We therefore run **no full training on M1**. M1 is only for smoke-tests and code
 
 ## 2. Kaggle Datasets to Attach (all public, all zero-cost)
 
-| Purpose              | Kaggle dataset / URL                                                                     | Size    |
-|----------------------|------------------------------------------------------------------------------------------|---------|
-| Speech Commands V2   | `hiro-suwa/speech-commands-v2` (or upload via `download_sc_v2.sh` once as a private ds) | 2.3 GB  |
-| MUSAN (full)         | `mananshah1718/musan-dataset` (verify SHA before use)                                    | 11 GB   |
-| RIRs (full)          | `nakahashi/rirs-noises-openslr28`                                                        | 25 GB   |
-| VoxCeleb1 test       | `parampreetsethi/voxceleb1-test` (P2 stretch only)                                       | 1.3 GB  |
-| WavLM-Base+ weights  | `pytorch/fairseq-wavlm-base-plus` HuggingFace mirror via `transformers` download         | 380 MB  |
-| ECAPA-TDNN weights   | `speechbrain/spkrec-ecapa-voxceleb` via `speechbrain` (downloads in notebook)            | 80 MB   |
+| Purpose              | Kaggle dataset / URL                                                                     | Size    | Kind     |
+|----------------------|------------------------------------------------------------------------------------------|---------|----------|
+| Speech Commands V2   | `sylkaladin/speech-commands-v2` (folder-per-class layout, matches our loader; fallbacks: `yashdogra/speech-commands`, `bahraleloom/tensorflow-speech-commands` — verify file tree before attaching) | 2.3 GB  | public   |
+| MUSAN noise          | `nhattruongdev/musan-noise` (noise subset only, ~5 GB — sufficient for KWS aug)          | ~5 GB   | public   |
+| RIRs smallroom       | upload `rirs_small.tar.gz` as a **private** dataset (~100 MB compressed, smallroom only; no suitable public Kaggle mirror found) | ~0.1 GB | private |
+| VoxCeleb1 test       | `parampreetsethi/voxceleb1-test` (P2 stretch only)                                       | 1.3 GB  | public   |
+| WavLM-Base+ weights  | `pytorch/fairseq-wavlm-base-plus` HuggingFace mirror via `transformers` download         | 380 MB  | HF       |
+| ECAPA-TDNN weights   | `speechbrain/spkrec-ecapa-voxceleb` via `speechbrain` (downloads in notebook)            | 80 MB   | HF       |
+
+> **RIRs upload** (one-time, from the Mac):
+> ```bash
+> cd /Users/malaymishra/Desktop/srib/data && tar czf rirs_small.tar.gz rirs_small
+> # Kaggle → "+ Create Dataset" → upload rirs_small.tar.gz → name it "rirs-small"
+> ```
+> Cell 4 below untars it into the working dir (Kaggle `/kaggle/input/` is read-only).
+
+> **MUSAN layout check:** our [MUSANMixer](code/src/data/augment.py) globs `musan_dir/noise/*.wav` + `musan_dir/music/*.wav`. If the `musan-noise` dataset has a flat layout (no `noise/` subfolder), either adjust the symlink target or tweak `augment.py`'s patterns. Music subset missing is fine (graceful empty-list fallback).
 
 > If any public mirror is unavailable on the day, fall back to uploading as a private Kaggle dataset. Log SHA256 in the notebook cell header.
 
@@ -58,7 +67,7 @@ os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 os.environ["WANDB_API_KEY"] = user_secrets.get_secret("WANDB_API_KEY")
 
 # Cell 2 — clone repo at a pinned SHA (reproducibility)
-REPO_SHA = "<paste the commit SHA you pushed from LOCAL_RUN §8>"
+REPO_SHA = "7b66680"
 !git clone https://github.com/MalayM09/SRIB.git /kaggle/working/srib
 %cd /kaggle/working/srib/code
 !git -C /kaggle/working/srib checkout $REPO_SHA
@@ -68,12 +77,21 @@ REPO_SHA = "<paste the commit SHA you pushed from LOCAL_RUN §8>"
                pyyaml==6.0.2 tqdm==4.66.4 wandb==0.17.7 \
                speechbrain==1.0.0 transformers==4.44.2
 
-# Cell 4 — symlink attached datasets into ../data (repo root is /kaggle/working/srib,
+# Cell 4 — attach datasets into ../data (repo root is /kaggle/working/srib,
 # configs reference ../data from code/, matching the local layout)
 !mkdir -p /kaggle/working/srib/data
+
+# SC V2 (public, folder-per-class). Adjust the source path to match the actual
+# slug you attached (e.g. /kaggle/input/speech-commands-v2 for sylkaladin's mirror).
 !ln -s /kaggle/input/speech-commands-v2 /kaggle/working/srib/data/speech_commands_v2
-!ln -s /kaggle/input/musan-dataset    /kaggle/working/srib/data/musan
-!ln -s /kaggle/input/rirs-noises      /kaggle/working/srib/data/rirs
+
+# MUSAN noise subset (public) — symlink directly; confirm the dataset has a `noise/`
+# subfolder, else change the target or adjust augment.py's glob pattern.
+!ln -s /kaggle/input/musan-noise /kaggle/working/srib/data/musan
+
+# RIRs smallroom (private, uploaded as tar.gz since /kaggle/input/ is read-only)
+!tar xzf /kaggle/input/rirs-small/rirs_small.tar.gz -C /kaggle/working/srib/data/
+# → creates /kaggle/working/srib/data/rirs_small
 
 # Cell 5 — verify
 import torch

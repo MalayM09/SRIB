@@ -1,5 +1,7 @@
 .venv/
-data/
+# dataset symlink dir at code/data/ (Kaggle mount target) — NOT the source
+# package at code/src/data/, which must stay tracked.
+/data/
 __pycache__/
 *.pyc
 *.pt

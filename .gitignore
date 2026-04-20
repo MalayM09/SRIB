@@ -1,5 +1,7 @@
-# datasets (Speech Commands V2, MUSAN, RIRs, etc.)
-data/
+# datasets (Speech Commands V2, MUSAN, RIRs, etc.) — anchored to repo root so
+# it does NOT match the source package at code/src/data/
+/data/
+/code/data/
 
 # python
 **/.venv/
