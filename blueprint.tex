@@ -49,7 +49,7 @@
 \setbeamertemplate{footline}{%
   \leavevmode\hbox{%
     \begin{beamercolorbox}[wd=.45\paperwidth,ht=2.4ex,dp=1ex,leftskip=1em]{author in head/foot}%
-      \color{srigray}\small AX Hackathon Phase 1 Blueprint \textbar{} Team \textbf{<TEAM NAME>}%
+      \color{srigray}\small AX Hackathon Phase 1 Blueprint \textbar{} Team \textbf{MalayM09}%
     \end{beamercolorbox}%
     \begin{beamercolorbox}[wd=.4\paperwidth,ht=2.4ex,dp=1ex]{title in head/foot}%
       \color{srigray}\small Speech Disentanglement \textbar{} Speaker-Specific Custom Word Detection%
@@ -68,7 +68,7 @@
 % ---------- Title info ----------
 \title{Edge-AI Speech Disentanglement}
 \subtitle{Speaker-Specific Custom Word Detection under -5\,dB SNR on <3\,M parameters}
-\author{Team \textbf{<TEAM NAME>}}
+\author{Team \textbf{MalayM09}  ·  Malay Mishra}
 \institute{Samsung \texttt{ennovateX} AX Hackathon — Phase 1 Blueprint}
 \date{April 2026}
 
@@ -87,31 +87,25 @@
 
 \begin{frame}{Team Introduction}
   \vspace{-0.3em}
-  \textbf{\color{sriblue}Team Name:} \texttt{<TEAM NAME>} \hfill
-  \textbf{\color{sriblue}Problem:} \texttt{<PROBLEM NUMBER>} — Speech Disentanglement
-  \vspace{0.8em}
+  \textbf{\color{sriblue}Team Name:} \texttt{MalayM09} \hfill
+  \textbf{\color{sriblue}Problem:} \texttt{PS04} — Speech Disentanglement
+  \vspace{1.2em}
 
   \begin{columns}[T, onlytextwidth]
-    \column{0.48\textwidth}
-      \begin{block}{Team Member 1}
+    \column{0.07\textwidth}
+    \column{0.62\textwidth}
+      \begin{block}{Team Member  \small\color{srigray}(solo submission)}
+        \renewcommand{\arraystretch}{1.18}
         \begin{tabular}{@{}ll@{}}
-          Name     & \texttt{<FILL>} \\
-          College  & \texttt{<FILL>} \\
-          Email ID & \texttt{<FILL>} \\
-          Dept.    & \texttt{<FILL>} \\
-          Year     & \texttt{<FILL>} \\
+          Name     & Malay Mishra \\
+          College  & BITS Pilani, Pilani campus \\
+          Department & Computer Science \\
+          Year     & 2026 \\
+          Email ID & \texttt{F20220116@pilani.bits-pilani.ac.in} \\
         \end{tabular}
       \end{block}
-    \column{0.48\textwidth}
-      \begin{block}{Team Member 2}
-        \begin{tabular}{@{}ll@{}}
-          Name     & \texttt{<FILL>} \\
-          College  & \texttt{<FILL>} \\
-          Email ID & \texttt{<FILL>} \\
-          Dept.    & \texttt{<FILL>} \\
-          Year     & \texttt{<FILL>} \\
-        \end{tabular}
-      \end{block}
+    \column{0.31\textwidth}
+      \small\color{srigray}\textit{Code, weights, and benchmarks released under \textbf{Apache-2.0} at \texttt{github.com/MalayM09/SRIB}.}
   \end{columns}
 \end{frame}
 
@@ -161,7 +155,7 @@
 % ============== SLIDE 3 — PROPOSED SOLUTION (HIGH LEVEL) ==============
 \begin{frame}{Proposed Solution — High Level}
   \textbf{\color{sriblue}One sentence.}
-  A single $\sim$930\,K-parameter student model jointly performs Keyword Spotting (KWS) and Speaker Verification (SV), distilled from two frozen SOTA teachers, with speaker-conditioned classification and a FAR-aware training loop.
+  A single $\sim$830\,K-parameter joint student (KWS backbone validated at \kpi{324\,K}) performs Keyword Spotting (KWS) and Speaker Verification (SV), distilled from two frozen SOTA teachers, with speaker-conditioned classification and a FAR-aware training loop.
   \vspace{0.6em}
 
   \begin{columns}[T, onlytextwidth]
@@ -230,7 +224,7 @@
           \bottomrule
         \end{tabular}
       \end{block}
-      \textbf{\color{sriblue}Headroom:} 69\% under the 3\,M cap — room for QAT scale/zero-point tensors and late-stage capacity additions without refactor.
+      \textbf{\color{sriblue}Headroom:} 72\% under the 3\,M cap — room for QAT scale/zero-point tensors and late-stage capacity additions without refactor.
   \end{columns}
 \end{frame}
 
@@ -250,7 +244,118 @@
   \end{columns}
 \end{frame}
 
-% ============== SLIDE 8 — NOVELTY HERO: FAR-IN-THE-LOOP ==============
+% ============== SLIDE 8 — PHASE-1 EMPIRICAL VALIDATION ==============
+\begin{frame}{Phase-1 Empirical Validation — KWS Backbone}
+  \vspace{-0.3em}
+  \begin{columns}[T, onlytextwidth]
+    \column{0.62\textwidth}
+      \includegraphics[width=\linewidth,height=0.70\textheight,keepaspectratio]{\illus{7_snr_sweep.png}}
+      {\scriptsize\color{srigray}
+       Noise-aug curves averaged over \{PCEN, log-Mel\} $\times$ \{seed 1337, seed 42\} = 4 runs; clean-training curve averaged over 2 front-ends. Panel (b) shaded bands = halfspread over 2 seeds. Test-time MUSAN mixed at fixed SNR on the val split (identical noise draw across arms for a given seed).}
+    \column{0.38\textwidth}
+      \small
+      \begin{block}{\color{sriblue}Headline}
+        \kpi{97.6\%} clean val on SC V2 @ \kpi{324\,K} params (10.8\% of the 3\,M cap). Train/val gap $<$2\,pp — no overfit.
+      \end{block}
+      \begin{block}{\color{srired}Dominant robustness lever}
+        \textbf{Data diversity, not the front-end.}\\
+        At worst case (RIR + $-$5\,dB noise): noise-aug training holds \kpi{77\%}; clean training collapses to \alert{55\%}. \highlight{$+$22\,pp gap} from augmentation alone.
+      \end{block}
+      \begin{block}{\color{sriblue}PCEN vs log-Mel (under noise-aug)}
+        Direction \emph{stable} across 2 seeds at every SNR — PCEN ahead by mean +0.41\,pp. PCEN also shows \kpi{\~4$\times$ lower cross-seed variance} at low SNR — a reproducibility win, not just an accuracy win.
+      \end{block}
+  \end{columns}
+\end{frame}
+
+% ============== SLIDE 8b — SV BRANCH POC ==============
+\begin{frame}{Phase-1 Empirical Validation — SV Branch POC}
+  \vspace{-0.3em}
+  \begin{columns}[T, onlytextwidth]
+    \column{0.60\textwidth}
+      \includegraphics[width=\linewidth,height=0.70\textheight,keepaspectratio]{\illus{8_sv_progression.png}}
+      {\scriptsize\color{srigray}
+       Trained on VoxCeleb1 dev (1211 speakers, 24K utterances), evaluated on the canonical VoxCeleb1-O trial list (37,720 same/different pairs). Student is a 384\,K-param BC-ResNet trunk + attentive-stat pooling + 256-dim projection. Teacher: pretrained \texttt{resemblyzer} (GE2E-LSTM).}
+    \column{0.40\textwidth}
+      \small
+      \begin{block}{\color{sriblue}Current state}
+        \kpi{10.64\,\%} EER on VoxCeleb1-O after 40 epochs joint distillation + Sub-center AAM-Softmax. Student is 384\,K params (within budget for joint student).
+      \end{block}
+      \begin{block}{\color{srired}Why v1 collapsed at 28.67\,\%}
+        Pure cosine distillation with no classification signal $\Rightarrow$ embeddings cluster at a single point — \emph{no} angular discrimination. Sub-center AAM with margin $m{=}0.2$ forces speakers into separate angular cones; \highlight{$+$18\,pp gain} from the loss change alone.
+      \end{block}
+      \begin{block}{\color{srigold}Path to $\leq$5\,\% (v3)}
+        Three remaining levers: (i) swap teacher to ECAPA-TDNN (1\,\% EER vs 4\,\%); (ii) tune $\lambda_{\text{distill}}$ down so the two losses cooperate; (iii) train on full VoxCeleb1 ($\sim$150K utts) for 80 epochs. Projected v3 EER: \kpi{4--5\,\%} — competitive with x-vector at $\sim$10$\times$ smaller.
+      \end{block}
+  \end{columns}
+\end{frame}
+
+% ============== SLIDE 8c — FiLM SPEAKER-CONDITIONED REJECTION ==============
+\begin{frame}{Phase-1 Empirical Validation — FiLM Rejection Trade-off}
+  \vspace{-0.3em}
+  \begin{columns}[T, onlytextwidth]
+    \column{0.62\textwidth}
+      \includegraphics[width=\linewidth,height=0.68\textheight,keepaspectratio]{\illus{9_film_tradeoff.png}}
+      {\scriptsize\color{srigray}
+       Joint KWS + SV + FiLM model (500\,K params, 400 train speakers, 8K utts, 30 epochs). Eval on 28 held-out speakers $\times$ 10 test items each, with 5-clip enrollment averaging. Genuine = enrolled speaker says keyword; imposter = different speaker enrolled, keyword spoken by another speaker. Collapse ratio = mean P(true\_kw)$_\text{imposter}$ / mean P(true\_kw)$_\text{genuine}$.}
+    \column{0.38\textwidth}
+      \small
+      \begin{block}{\color{sriblue}Mechanism validated}
+        \kpi{95\,\% TAR + 86\,\% imposter-rejection} at \kpi{14\,\% FAR} when train and eval embedding distributions are matched (v2 own-audio diagnostic). Probability collapse ratio \kpi{0.20} — imposters get $\sim$5$\times$ less keyword confidence than genuine.
+      \end{block}
+      \begin{block}{\color{srired}Trade-off characterized}
+        Closing the train/eval gap (v3 paired enrollment) lifts TAR to 92\,\% but loosens rejection (FAR jumps to \alert{48\,\%}). The system has a tunable TAR/FAR knob via imposter-loss weighting and hard-negative mining.
+      \end{block}
+      \begin{block}{\color{srigold}Path to deployment (v4)}
+        Hard-negative mining + $\lambda_{\text{imp}}{=}2$ + max-imposter-ratio 0.7. Target: \kpi{$\geq$85\,\% TAR + $\leq$25\,\% FAR + $\geq$70\,\% REJ} at the production operating point.
+      \end{block}
+  \end{columns}
+\end{frame}
+
+% ============== SLIDE 8d — CUSTOM-WORD FEW-SHOT VALIDATION ==============
+\begin{frame}{Phase-1 Empirical Validation — Custom-Word Generalization}
+  \vspace{-0.3em}
+  \begin{columns}[T, onlytextwidth]
+    \column{0.62\textwidth}
+      \includegraphics[width=\linewidth,height=0.68\textheight,keepaspectratio]{\illus{10_custom_word.png}}
+      {\scriptsize\color{srigray}
+       Embedding network (384\,K params) trained on 28 SC V2 keywords with Sub-center AAM-Softmax. Evaluated on 7 held-out polysyllabic words (\texttt{backward, forward, marvin, sheila, learn, follow, visual}) the model has \emph{never seen}: 5-shot enrollment averaging into a prototype, then cosine similarity scoring against genuine + cross-word imposter pairs (700 trials).}
+    \column{0.38\textwidth}
+      \small
+      \begin{block}{\color{sriblue}Headline}
+        \kpi{EER = 12.43\,\%} on novel words, \kpi{AUC = 0.934}, score separation \kpi{4.2$\times$} (genuine 0.63 vs imposter 0.15) — at \kpi{384\,K params, no WavLM teacher}.
+      \end{block}
+      \begin{block}{\color{srired}Phonetic generalization confirmed}
+        Per-word EER spans 6--18\,\%: words sharing phonemes with the train set (\texttt{forward}, \texttt{follow}) enroll at \kpi{6--7\,\%}; novel phoneme combos (\texttt{backward}, \texttt{learn}) at \alert{16--18\,\%}. The model is \emph{phonetically organized}, not memorising — a precondition for arbitrary user-chosen triggers.
+      \end{block}
+      \begin{block}{\color{srigold}Path to GREEN ($\leq$10\,\% EER)}
+        Add WavLM hint-layer distillation (Slide 5 already specifies layers 4/8/11) — closes the 6--18\,\% spread on hard words. Projected: \kpi{$\leq$8\,\% EER, TAR$\geq$70\,\% at FAR=1\,\%}. Same 384\,K student, no extra inference cost.
+      \end{block}
+  \end{columns}
+\end{frame}
+
+% ============== SLIDE 8e — DEPLOYMENT VALIDATION ==============
+\begin{frame}{Phase-1 Empirical Validation — Deployment Latency \& Size}
+  \vspace{-0.3em}
+  \begin{columns}[T, onlytextwidth]
+    \column{0.62\textwidth}
+      \includegraphics[width=\linewidth,height=0.68\textheight,keepaspectratio]{\illus{11_deploy_metrics.png}}
+      {\scriptsize\color{srigray}
+       Joint KWS+SV+FiLM model (500\,K params) exported to ONNX. Frontend (mel + PCEN) runs in PyTorch CPU; trunk + heads run in ONNX Runtime, single-thread (matches Pi 4B per-core profile). Mac M1 latencies are direct measurements (200 iters); Pi 4B numbers projected via the documented 3.5$\times$ M1$\to$Cortex-A72 single-core ratio. INT8 via ONNX static post-training quantization with 64 SC V2 calibration clips.}
+    \column{0.38\textwidth}
+      \small
+      \begin{block}{\color{sriblue}xRT  ·  comfortable PASS}
+        Pi 4B INT8: \kpi{12\,ms} end-to-end vs \kpi{200\,ms} budget — \kpi{17$\times$ headroom}. Even FP32 at 17\,ms passes the budget by 12$\times$. The xRT KPI is not the binding constraint.
+      \end{block}
+      \begin{block}{\color{sridark}Param + size budget}
+        \kpi{499.6\,K params} ($\sim$\kpi{17\%} of the 3\,M cap), INT8 ONNX ships at \kpi{0.79\,MB} (2.6$\times$ shrink from 2.05\,MB FP32). Tiny enough for OTA updates and on-device caching.
+      \end{block}
+      \begin{block}{\color{srigold}Numeric fidelity}
+        FP32 ONNX: max-abs-diff vs PyTorch \kpi{$<$3$\times$10$^{-6}$} (essentially exact). INT8 post-hoc: KWS-logit drift $\sim$2.0, SV-emb drift $\sim$0.16 — expected for static PTQ; production deployment uses \novel{INT8 QAT} (Stage 4 in the training plan), which typically reduces drift 5--10$\times$.
+      \end{block}
+  \end{columns}
+\end{frame}
+
+% ============== SLIDE 9 — NOVELTY HERO: FAR-IN-THE-LOOP ==============
 \begin{frame}{Novelty \& Innovation — FAR-in-the-Loop Training}
   \vspace{-0.3em}
   \begin{columns}[T, onlytextwidth]
@@ -272,7 +377,7 @@
   \footnotetext[2]{\color{srigray}\scriptsize PK-MTL (arXiv:2206.13708) reports vanilla BC-ResNet hits 64.32\% FRR in target-only KWS; task-adaptive training brings this to 6.56\%.}
 \end{frame}
 
-% ============== SLIDE 9 — NOVELTY: ADDITIONAL INNOVATIONS ==============
+% ============== SLIDE 10 — NOVELTY: ADDITIONAL INNOVATIONS ==============
 \begin{frame}{Novelty \& Innovation — Supporting Contributions}
   \small
   \begin{columns}[T, onlytextwidth]
@@ -374,7 +479,7 @@
       \toprule
       \textbf{Model} & \textbf{Description} & \textbf{Licence} \\
       \midrule
-      Modified BC-ResNet-8 + TRM + FiLM + MQMHA  & Joint KWS + SV student, $\sim$930\,K params & Apache-2.0 \\
+      Modified BC-ResNet-8 + TRM + FiLM + MQMHA  & Joint KWS + SV student, $\sim$830\,K params (trunk validated at 324\,K) & Apache-2.0 \\
       WavLM $\to$ KWS probing head                & 2-layer MLP, $\sim$50\,K params              & Apache-2.0 \\
       INT8 ONNX deployable artifact               & Streaming, stateful PCEN                     & Apache-2.0 \\
       \bottomrule
@@ -420,7 +525,7 @@
   \centering
   \textbf{Closing the FA $<$ 1/hr gap on $<$3\,M params}\\[0.5em]
   \normalsize FAR-in-the-Loop training  $\cdot$  FiLM-conditioned KWS  $\cdot$  Multi-teacher distillation\\[1em]
-  \small\color{srigray}Team \texttt{<TEAM NAME>}  $\cdot$  Problem \texttt{<PROBLEM NUMBER>}  $\cdot$  Apache-2.0
+  \small\color{srigray}Team \texttt{MalayM09}  $\cdot$  Malay Mishra  $\cdot$  BITS Pilani  $\cdot$  Problem \texttt{PS04}  $\cdot$  Apache-2.0
 \end{frame}
 
 \end{document}

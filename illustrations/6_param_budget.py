@@ -2,16 +2,16 @@
 import matplotlib.pyplot as plt
 
 components = [
-    ("BC-ResNet-8 trunk (shared)", 420, "#4338ca"),
-    ("KWS branch (2 blocks)",      180, "#65a30d"),
-    ("SV branch (2 blocks)",       180, "#65a30d"),
-    ("MQMHA pooling",               30, "#10b981"),
-    ("SV head + projection",        55, "#6d28d9"),
-    ("KWS head + FiLM generator",   25, "#b91c1c"),
-    ("TRM_kws + TRM_sv",            15, "#b45309"),
-    ("ECAPA distill proj heads",    15, "#0891b2"),
-    ("WavLM hint-layer proj",       10, "#0891b2"),
-    ("Learnable PCEN params",        0.2, "#64748b"),
+    ("BC-ResNet-8 trunk (shared, validated)", 323, "#4338ca"),
+    ("KWS branch (2 blocks)",                 180, "#65a30d"),
+    ("SV branch (2 blocks)",                  180, "#65a30d"),
+    ("MQMHA pooling",                          30, "#10b981"),
+    ("SV head + projection",                   55, "#6d28d9"),
+    ("KWS head + FiLM generator",              25, "#b91c1c"),
+    ("TRM_kws + TRM_sv",                       15, "#b45309"),
+    ("ECAPA distill proj heads",               15, "#0891b2"),
+    ("WavLM hint-layer proj",                  10, "#0891b2"),
+    ("Learnable PCEN params",                   0.2, "#64748b"),
 ]
 
 components = sorted(components, key=lambda x: x[1], reverse=True)

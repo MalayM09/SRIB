@@ -1,0 +1,72 @@
+{
+  "step": "D \u2014 custom-word few-shot detection",
+  "device": "mps",
+  "smoke": false,
+  "train_words": 28,
+  "train_utterances": 11200,
+  "held_out_words": [
+    "backward",
+    "forward",
+    "marvin",
+    "sheila",
+    "learn",
+    "follow",
+    "visual"
+  ],
+  "epochs": 30,
+  "model_params_k": 384.3,
+  "evaluation": {
+    "trial_pairs": 700,
+    "EER_percent": 12.43,
+    "EER_threshold": 0.3939,
+    "TAR_at_FAR_1pct": 0.5429,
+    "TAR_at_FAR_5pct": 0.7086,
+    "mean_genuine_score": 0.6306,
+    "mean_imposter_score": 0.1518,
+    "score_separation": 0.4788
+  },
+  "per_word": {
+    "backward": {
+      "eer_percent": 18.0,
+      "n_pairs": 100,
+      "mean_genuine": 0.4887654408998787,
+      "mean_imposter": 0.09506502013653517
+    },
+    "forward": {
+      "eer_percent": 6.0,
+      "n_pairs": 100,
+      "mean_genuine": 0.7681550157070159,
+      "mean_imposter": 0.17323552789166569
+    },
+    "marvin": {
+      "eer_percent": 12.0,
+      "n_pairs": 100,
+      "mean_genuine": 0.6664461495354772,
+      "mean_imposter": 0.2266496657207608
+    },
+    "sheila": {
+      "eer_percent": 15.0,
+      "n_pairs": 100,
+      "mean_genuine": 0.6717168736457825,
+      "mean_imposter": 0.20697465907782317
+    },
+    "learn": {
+      "eer_percent": 16.0,
+      "n_pairs": 100,
+      "mean_genuine": 0.550445888787508,
+      "mean_imposter": 0.11301967684179544
+    },
+    "follow": {
+      "eer_percent": 7.0,
+      "n_pairs": 100,
+      "mean_genuine": 0.6814297103881836,
+      "mean_imposter": 0.12691713110543787
+    },
+    "visual": {
+      "eer_percent": 15.0,
+      "n_pairs": 100,
+      "mean_genuine": 0.5873022275045514,
+      "mean_imposter": 0.12107045385986566
+    }
+  }
+}

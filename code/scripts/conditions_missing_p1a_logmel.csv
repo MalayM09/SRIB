@@ -1,0 +1,3 @@
+condition,gallery_file,val_acc
+rir_only,02_rir_only,0.9626107629133348
+rir_plus_musan_-5dB,04_rir_plus_noise_-5dB,0.7732872271450184

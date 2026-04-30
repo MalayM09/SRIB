@@ -1,0 +1,37 @@
+{
+  "version": "film_poc_v4 (paired + hard negatives + weighted imposter)",
+  "device": "mps",
+  "smoke": false,
+  "trained_speakers": 400,
+  "training_utterances": 8115,
+  "epochs": 30,
+  "curriculum": {
+    "ramp_start": 5,
+    "ramp_end": 15,
+    "max_imposter_ratio": 0.7,
+    "lambda_imposter": 2.0
+  },
+  "lr": 0.0005,
+  "model_params_k": 499.6,
+  "evaluation": {
+    "enrolled_speakers": 28,
+    "test_items": 280,
+    "genuine_TAR_percent": 5.71,
+    "imposter_FAR_percent": 0.36,
+    "imposter_rejection_percent": 99.64,
+    "mean_prob_true_kw_genuine": 0.2764,
+    "mean_prob_true_kw_imposter": 0.1564,
+    "probability_collapse_ratio": 0.5659
+  },
+  "v3_baseline": {
+    "TAR_percent": 92.14,
+    "FAR_percent": 48.21,
+    "REJ_percent": 51.07,
+    "collapse_ratio": 0.547
+  },
+  "delta_vs_v3": {
+    "TAR_pp": -86.43,
+    "FAR_pp": -47.85,
+    "REJ_pp": 48.57
+  }
+}

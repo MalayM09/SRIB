@@ -1,0 +1,18 @@
+{
+  "device": "mps",
+  "smoke": false,
+  "trained_speakers": 200,
+  "training_utterances": 3131,
+  "epochs": 25,
+  "model_params_k": 499.6,
+  "evaluation": {
+    "enrolled_speakers": 16,
+    "test_items": 160,
+    "genuine_TAR_percent": 63.75,
+    "imposter_FAR_percent": 12.5,
+    "imposter_rejection_percent": 84.38,
+    "mean_prob_true_kw_genuine": 0.5327,
+    "mean_prob_true_kw_imposter": 0.1554,
+    "probability_collapse_ratio": 0.2918
+  }
+}

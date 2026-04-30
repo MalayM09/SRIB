@@ -1,0 +1,21 @@
+{
+  "ckpt": "joint_kws_sv_film_v2.pt",
+  "enrolled_eval": {
+    "TAR": 0.625,
+    "FAR": 0.15,
+    "REJ": 0.85,
+    "mean_prob_g": 0.5785960700429443,
+    "mean_prob_i": 0.19441692681114417,
+    "collapse_ratio": 0.33601494527384923
+  },
+  "own_audio_eval": {
+    "TAR": 0.9464285714285714,
+    "FAR": 0.14285714285714285,
+    "REJ": 0.8571428571428571,
+    "mean_prob_g": 0.8593775659799576,
+    "mean_prob_i": 0.1708633989349177,
+    "collapse_ratio": 0.1988222705582037
+  },
+  "TAR_delta_own_minus_enrolled_pp": 32.14,
+  "training_gen_acc_at_ep30": 0.922
+}

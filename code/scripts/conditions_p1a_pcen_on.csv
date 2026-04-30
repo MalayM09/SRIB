@@ -1,0 +1,9 @@
+condition,gallery_file,val_acc
+clean,clean,0.963259131186514
+rir_only,02_rir_only,0.03177004538577912
+musan_20dB,03_noise_+20dB,0.031121677112599958
+musan_10dB,03_noise_+10dB,0.031121677112599958
+musan_5dB,03_noise_+05dB,0.031121677112599958
+musan_0dB,03_noise_+00dB,0.031121677112599958
+musan_-5dB,03_noise_-05dB,0.02939269505078885
+rir_plus_musan_-5dB,04_rir_plus_noise_-5dB,0.031121677112599958

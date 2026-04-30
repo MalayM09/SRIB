@@ -1,0 +1,3 @@
+condition,gallery_file,val_acc
+clean,clean,0.973849146315107
+musan_20dB,03_noise_+20dB,0.9688783228874001
