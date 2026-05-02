@@ -20,8 +20,8 @@ import yaml
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from src.data import (MUSANMixer, RIRConvolver, SpeechCommandsV2, SpecAugment,
-                      WaveformAugment)
+from src.data import (BabbleMixer, MUSANMixer, RIRConvolver, SpeechCommandsV2,
+                      SpecAugment, WaveformAugment)
 from src.losses import FocalCrossEntropy
 from src.model import BCResNet8, KWSHead, LearnablePCEN
 from src.utils import get_logger, set_seed
@@ -94,6 +94,7 @@ def build_augment(cfg: dict) -> WaveformAugment | None:
     data_cfg = cfg["data"]
     rir = None
     musan = None
+    babble = None
     rir_dir = Path(data_cfg["root"]).parent / "rirs_small"
     musan_dir = Path(data_cfg["root"]).parent / "musan_small"
     if aug_cfg.get("rir_prob", 0) > 0 and rir_dir.exists():
@@ -104,9 +105,16 @@ def build_augment(cfg: dict) -> WaveformAugment | None:
             prob=aug_cfg["musan_prob"],
             snr_range=tuple(aug_cfg.get("snr_range", (0.0, 20.0))),
         )
-    if rir is None and musan is None:
+    if aug_cfg.get("babble_prob", 0) > 0:
+        babble = BabbleMixer(
+            sc_root=data_cfg["root"],
+            prob=aug_cfg["babble_prob"],
+            n_voices_range=tuple(aug_cfg.get("babble_voices", [1, 2])),
+            snr_range=tuple(aug_cfg.get("babble_snr_range", (-5.0, 20.0))),
+        )
+    if rir is None and musan is None and babble is None:
         return None
-    return WaveformAugment(rir=rir, musan=musan)
+    return WaveformAugment(rir=rir, musan=musan, babble=babble)
 
 
 def train_one_epoch(model, loader, augment, loss_fn, optimizer, device, epoch, scheduler=None):
@@ -188,7 +196,9 @@ def main():
     # ---- augmentation (waveform-domain, per-sample in main process for simplicity)
     augment = build_augment(cfg)
     if augment is not None:
-        log.info(f"augment: rir={augment.rir is not None} musan={augment.musan is not None}")
+        log.info(f"augment: rir={augment.rir is not None} "
+                 f"musan={augment.musan is not None} "
+                 f"babble={augment.babble is not None}")
 
     # ---- model
     model_cfg = cfg["model"]

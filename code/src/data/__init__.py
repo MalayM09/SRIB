@@ -1,5 +1,5 @@
 from .speech_commands import SpeechCommandsV2, SC_V2_WORDS
-from .augment import SpecAugment, RIRConvolver, MUSANMixer, WaveformAugment
+from .augment import SpecAugment, RIRConvolver, MUSANMixer, BabbleMixer, WaveformAugment
 
 __all__ = [
     "SpeechCommandsV2",
@@ -7,5 +7,6 @@ __all__ = [
     "SpecAugment",
     "RIRConvolver",
     "MUSANMixer",
+    "BabbleMixer",
     "WaveformAugment",
 ]

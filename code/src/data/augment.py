@@ -64,6 +64,73 @@ class RIRConvolver:
         return conv.astype(np.float32)
 
 
+class BabbleMixer:
+    """Mix N random SC V2 keyword clips at uniformly-sampled SNR.
+    Use SC V2 itself as the babble source — no extra dataset needed.
+    Models cocktail-party 'background conversations' that MUSAN can't reproduce.
+    """
+
+    def __init__(
+        self,
+        sc_root: str | Path,
+        prob: float = 0.4,
+        n_voices_range: tuple[int, int] = (1, 2),
+        snr_range: tuple[float, float] = (-5.0, 20.0),
+        n_pool: int = 3000,
+        seed: int = 1337,
+    ):
+        root = Path(sc_root)
+        all_clips: List[Path] = []
+        if root.is_dir():
+            for word_dir in root.iterdir():
+                if not word_dir.is_dir() or word_dir.name.startswith("_"):
+                    continue
+                all_clips.extend(list(word_dir.glob("*.wav")))
+        rng_init = random.Random(seed)
+        rng_init.shuffle(all_clips)
+        self.paths = all_clips[:n_pool]
+        self.prob = prob
+        self.n_lo, self.n_hi = n_voices_range
+        self.snr_lo, self.snr_hi = snr_range
+        self._rng = random.Random(seed + 1)
+
+    def __call__(self, wav: np.ndarray) -> np.ndarray:
+        if not self.paths or self._rng.random() > self.prob:
+            return wav
+        n_voices = self._rng.randint(self.n_lo, self.n_hi)
+        babble = np.zeros_like(wav, dtype=np.float32)
+        loaded = 0
+        tries = 0
+        while loaded < n_voices and tries < n_voices * 4:
+            tries += 1
+            v_path = self._rng.choice(self.paths)
+            try:
+                v, sr = sf.read(str(v_path))
+                if v.ndim > 1:
+                    v = v[:, 0]
+                if sr != SAMPLE_RATE:
+                    continue
+                v = v.astype(np.float32)
+                if len(v) < len(wav):
+                    reps = (len(wav) // max(len(v), 1)) + 1
+                    v = np.tile(v, reps)
+                babble += v[:len(wav)]
+                loaded += 1
+            except Exception:
+                continue
+        if loaded == 0:
+            return wav
+        babble = babble / loaded
+        snr_db = self._rng.uniform(self.snr_lo, self.snr_hi)
+        sig_rms = _rms(wav)
+        n_rms = _rms(babble)
+        if n_rms < 1e-6 or sig_rms < 1e-6:
+            return wav
+        target_noise_rms = sig_rms / (10 ** (snr_db / 20.0))
+        babble = babble * (target_noise_rms / n_rms)
+        return (wav + babble).astype(np.float32)
+
+
 class MUSANMixer:
     """Mix a random MUSAN noise/music snippet at a uniformly-sampled SNR."""
 
@@ -106,15 +173,17 @@ class MUSANMixer:
 
 
 class WaveformAugment:
-    """Compose optional RIR + MUSAN. Returns a torch.Tensor (same shape in & out)."""
+    """Compose optional RIR + MUSAN + Babble. Returns a torch.Tensor."""
 
     def __init__(
         self,
         rir: Optional[RIRConvolver] = None,
         musan: Optional[MUSANMixer] = None,
+        babble: Optional[BabbleMixer] = None,
     ):
         self.rir = rir
         self.musan = musan
+        self.babble = babble
 
     def __call__(self, wav: torch.Tensor) -> torch.Tensor:
         arr = wav.numpy().copy()
@@ -122,7 +191,8 @@ class WaveformAugment:
             arr = self.rir(arr)
         if self.musan is not None:
             arr = self.musan(arr)
-        # prevent clipping
+        if self.babble is not None:
+            arr = self.babble(arr)
         peak = float(np.max(np.abs(arr)) + 1e-9)
         if peak > 0.99:
             arr = arr * (0.99 / peak)
