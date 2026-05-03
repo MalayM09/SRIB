@@ -355,6 +355,28 @@
   \end{columns}
 \end{frame}
 
+% ============== SLIDE 8f — BABBLE / COCKTAIL-PARTY ROBUSTNESS ==============
+\begin{frame}{Phase-1 Empirical Validation — Cocktail-Party Robustness}
+  \vspace{-0.3em}
+  \begin{columns}[T, onlytextwidth]
+    \column{0.62\textwidth}
+      \includegraphics[width=\linewidth,height=0.68\textheight,keepaspectratio]{\illus{12_babble_robustness.png}}
+      {\scriptsize\color{srigray}
+       Babble noise = N random SC V2 utterances mixed at fixed SNR (cocktail-party simulation, addresses the \textit{``background conversations''} phrase in the PS04 brief). Models: P0 = clean training, P1a = RIR + MUSAN training, P1c = RIR + MUSAN + \novel{babble} training. Same val set, same noise seed across runs.}
+    \column{0.38\textwidth}
+      \small
+      \begin{block}{\color{sriblue}Cocktail-party gap, identified}
+        Without babble training, the model collapses on competing-speaker noise: P1a hits only \alert{29\,\%} at $-$5\,dB babble vs \kpi{84\,\%} at $-$5\,dB MUSAN. \kpi{$-$56\,pp gap} between ambient noise and speech-on-speech.
+      \end{block}
+      \begin{block}{\color{srigold}Babble augmentation, validated}
+        Adding babble to training (40\,\% of batches, 1--2 competing voices) lifts babble robustness by \kpi{+19\,pp at $-$5\,dB}, \kpi{+21\,pp at 0\,dB}, with negligible clean cost ($-$0.5\,pp). N=3 generalization holds: 90\,\% at 10\,dB even with 3 simultaneous voices.
+      \end{block}
+      \begin{block}{\color{srired}Trade-off characterized}
+        MUSAN robustness erodes \kpi{$\leq$5\,pp} at $-$5\,dB (84\,\% $\to$ 80\,\%) — within bounds. \novel{Net trade is strongly positive}: +19\,pp babble for $-$5\,pp MUSAN.
+      \end{block}
+  \end{columns}
+\end{frame}
+
 % ============== SLIDE 9 — NOVELTY HERO: FAR-IN-THE-LOOP ==============
 \begin{frame}{Novelty \& Innovation — FAR-in-the-Loop Training}
   \vspace{-0.3em}
