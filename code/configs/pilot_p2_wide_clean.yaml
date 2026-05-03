@@ -1,0 +1,38 @@
+# Path-to-99% TA Clean — wider trunk + label smoothing + longer schedule.
+# Goal: validate the projected ≥99% clean val_acc claim with a real measurement.
+# Channels [60, 90, 120, 150] = BC-ResNet-9 width target (~900K trunk).
+# Clean training only — no waveform aug — to push clean accuracy ceiling.
+
+run:
+  name: p2_wide_clean
+  seed: 1337
+  device: cuda
+  out_dir: /kaggle/working/runs/p2_wide_clean
+
+data:
+  root: data/speech_commands_v2
+  batch_size: 256
+  num_workers: 4
+  sample_rate: 16000
+
+model:
+  trunk: bc_resnet8
+  use_pcen: true
+  n_mels: 40
+  num_classes: 12
+  trunk_channels: [60, 90, 120, 150]   # widened from default [40, 60, 80, 100]
+
+optim:
+  lr: 4.0e-3
+  weight_decay: 1.0e-4
+  epochs: 60                            # longer schedule
+  scheduler: cosine
+  warmup_epochs: 3
+  loss: ce_label_smooth                 # CE with label smoothing
+  label_smoothing: 0.1
+
+augment:
+  specaugment: true                     # spec-aug only — no RIR/MUSAN/babble
+  rir_prob: 0.0
+  musan_prob: 0.0
+  babble_prob: 0.0

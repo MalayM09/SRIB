@@ -75,11 +75,12 @@ class KWSModel(nn.Module):
         use_pcen: bool = True,
         specaug: bool = True,
         sample_rate: int = 16000,
+        trunk_channels=None,
     ):
         super().__init__()
         self.frontend = MelFrontend(n_mels=n_mels, sample_rate=sample_rate, use_pcen=use_pcen)
         self.specaug = SpecAugment() if specaug else nn.Identity()
-        self.trunk = BCResNet8(n_mels=n_mels)
+        self.trunk = BCResNet8(n_mels=n_mels, channels=trunk_channels)
         self.head = KWSHead(self.trunk.out_channels, num_classes=num_classes)
 
     def forward(self, wav: torch.Tensor) -> torch.Tensor:
@@ -208,6 +209,7 @@ def main():
         use_pcen=model_cfg.get("use_pcen", True),
         specaug=cfg.get("augment", {}).get("specaugment", True),
         sample_rate=data_cfg["sample_rate"],
+        trunk_channels=model_cfg.get("trunk_channels"),  # None → default τ=8 width
     ).to(device)
 
     n_trunk = model.trunk.num_parameters()
@@ -224,7 +226,16 @@ def main():
     steps_per_epoch = len(train_loader)
     total_steps = steps_per_epoch * opt_cfg["epochs"]
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=total_steps)
-    loss_fn = FocalCrossEntropy()
+
+    # Loss: focal CE (default) or label-smoothed CE for the path-to-99% recipe
+    loss_name = opt_cfg.get("loss", "focal")
+    if loss_name == "ce_label_smooth":
+        ls = float(opt_cfg.get("label_smoothing", 0.1))
+        loss_fn = nn.CrossEntropyLoss(label_smoothing=ls)
+        log.info(f"loss: CE with label_smoothing={ls}")
+    else:
+        loss_fn = FocalCrossEntropy()
+        log.info("loss: FocalCrossEntropy")
 
     # ---- train
     history = []

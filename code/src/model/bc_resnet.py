@@ -132,35 +132,37 @@ class NormalBlock(nn.Module):
 
 
 class BCResNet8(nn.Module):
-    """BC-ResNet-8 (tau=8). Returns a feature map; pooling happens in the head."""
+    """BC-ResNet-8 (tau=8). Returns a feature map; pooling happens in the head.
+
+    Channels can be overridden per-instance via the `channels` constructor arg
+    (e.g. [60, 90, 120, 150] for the BC-ResNet-9 width target — ~900K trunk).
+    """
 
     DEPTHS: List[int] = [2, 2, 4, 4]
-    # Paper (Kim et al. 2021, τ=8) reports ~321K params with channels
-    # [16, 24, 32, 40] under the BC block. Our inverted-residual block is
-    # ~5× cheaper per block, so we widen channels to keep the same
-    # parameter budget (≈321K). Phase-2 FiLM / speaker-conditioning assumes
-    # this width.
+    # Default τ=8 width — ~321K trunk; matches the paper's parameter budget
     CHANNELS: List[int] = [40, 60, 80, 100]
     FREQ_STRIDES: List[int] = [2, 2, 2, 1]
     DILATIONS: List[int] = [1, 2, 4, 8]
 
-    def __init__(self, n_mels: int = 40, dropout: float = 0.1):
+    def __init__(self, n_mels: int = 40, dropout: float = 0.1,
+                 channels: List[int] | None = None):
         super().__init__()
         self.n_mels = n_mels
+        self._channels = channels if channels is not None else self.CHANNELS
 
         self.stem = nn.Sequential(
-            nn.Conv2d(1, self.CHANNELS[0], kernel_size=(5, 5),
+            nn.Conv2d(1, self._channels[0], kernel_size=(5, 5),
                       stride=(2, 1), padding=(2, 2), bias=False),
-            nn.BatchNorm2d(self.CHANNELS[0]),
+            nn.BatchNorm2d(self._channels[0]),
             nn.SiLU(inplace=True),
         )
 
         blocks: List[nn.Module] = []
-        c_prev = self.CHANNELS[0]
+        c_prev = self._channels[0]
         freq = n_mels // 2  # after stem stride
 
         for stage, (depth, c_out, fs, dil) in enumerate(
-            zip(self.DEPTHS, self.CHANNELS, self.FREQ_STRIDES, self.DILATIONS)
+            zip(self.DEPTHS, self._channels, self.FREQ_STRIDES, self.DILATIONS)
         ):
             for b in range(depth):
                 is_first = (b == 0)
