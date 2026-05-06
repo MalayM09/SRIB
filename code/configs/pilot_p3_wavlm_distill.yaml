@@ -1,0 +1,43 @@
+# Path to ≥99% TA Clean — WavLM distillation.
+# Frozen WavLM-Base+ teacher, KWS student trained jointly with
+#   L = CE(label_smoothing=0.1) + λ · (1 - cos_sim(student_proj, teacher_emb_mean))
+#
+# Wider student (BC-ResNet-9 width) to give distillation room to land.
+# Student stays single-model — no inference overhead from teacher.
+
+run:
+  name: p3_wavlm_distill
+  seed: 1337
+  device: cuda
+  out_dir: /kaggle/working/runs/p3_wavlm_distill
+
+data:
+  root: data/speech_commands_v2
+  batch_size: 128                        # larger than smoke; T4 has 15 GB VRAM
+  num_workers: 4
+  sample_rate: 16000
+
+model:
+  trunk: bc_resnet8
+  use_pcen: true
+  n_mels: 40
+  num_classes: 12
+  trunk_channels: [60, 90, 120, 150]     # same wider trunk as P2
+  teacher: microsoft/wavlm-base-plus     # frozen WavLM-Base+ (~95 M params)
+  distill_dim: 768                       # WavLM hidden dim
+
+optim:
+  lr: 4.0e-3
+  weight_decay: 1.0e-4
+  epochs: 40                             # compromise between WavLM cost and convergence
+  scheduler: cosine
+  warmup_epochs: 3
+  loss: ce_label_smooth
+  label_smoothing: 0.1
+  lambda_distill: 1.0                    # weight on (1 - cos_sim) loss
+
+augment:
+  specaugment: true
+  rir_prob: 0.0                          # clean training to push TA Clean ceiling
+  musan_prob: 0.0
+  babble_prob: 0.0
