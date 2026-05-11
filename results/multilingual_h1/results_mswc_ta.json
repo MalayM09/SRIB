@@ -1,0 +1,23 @@
+{
+  "language": "ta",
+  "n_keywords": 6,
+  "n_clips_per_keyword": 8,
+  "n_enroll": 3,
+  "n_test_per_keyword": 5,
+  "per_keyword_eer": {
+    "என்ன": 0.12,
+    "இந்த": 0.04,
+    "நல்ல": 0.0,
+    "அந்த": 0.44,
+    "வந்த": 0.12,
+    "பெரிய": 0.16
+  },
+  "mean_eer": 0.14666666666666667,
+  "embedder_ckpt": "/kaggle/working/srib/results/custom_word_poc/word_embedder.pt",
+  "training_language": "english (Speech Commands V2)",
+  "test_language": "tamil (MSWC, MLCommons/ml_spoken_words)",
+  "english_baseline_eer": 0.1243,
+  "cross_language_gap_pp": 2.24,
+  "note": "Cross-language sanity check — embedder trained on English only, tested zero-shot on Tamil. n=180 total trials (30 positives + 150 negatives across 6 keywords).",
+  "source": "Kaggle notebook 2026-05-11, Cell 9 output (multilingual_h1.ipynb)"
+}

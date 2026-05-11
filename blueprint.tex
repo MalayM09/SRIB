@@ -183,14 +183,16 @@
   \includegraphics[width=\textwidth,height=0.72\textheight,keepaspectratio]{\illus{1_architecture.png}}
   \vspace{-0.3em}
   {\scriptsize\color{srigray}
-   Shared trunk (blue) $\to$ Task Representation Modules (yellow) $\to$ KWS / SV branches (green) $\to$ FiLM modulation (red) conditions KWS on speaker embedding (stop-gradient on forward).}
+   \textbf{Forward (inference):} waveform $\to$ PCEN frontend $\to$ shared BC-ResNet-8 trunk (blue) $\to$ TRM branching (yellow) $\to$ KWS / SV heads (green) $\to$ \novel{FiLM} (red) modulates KWS logits on the speaker embedding.
+   \textbf{Training:} stop-gradient on the SV$\to$FiLM edge --- KWS loss never back-propagates into the speaker branch (otherwise SV degrades; trade-off measured on Slide 11).
+   \textbf{Params:} trunk \kpi{324\,K} (validated) + branches/heads $\sim$\kpi{175\,K} $=$ \kpi{499\,K} Phase-1 joint (Slide 13); \kpi{$\sim$830\,K} projected with multi-teacher KD heads (Slide 7). Novel components highlighted red/yellow.}
 \end{frame}
 
 % ============== SLIDE 5 — TECHNICAL DETAILS: DISTILLATION ==============
 \begin{frame}{Technical Details — Multi-Teacher Knowledge Distillation}
   \vspace{-0.4em}
   \centering
-  \includegraphics[width=\textwidth,height=0.62\textheight,keepaspectratio]{\illus{2_distillation.png}}
+  \includegraphics[width=\textwidth,height=0.55\textheight,keepaspectratio]{\illus{2_distillation.png}}
   \vspace{-0.2em}
   {\scriptsize
   \[
@@ -201,6 +203,9 @@
     \lambda_4\,\mathcal{L}_\text{hint}^{\{4,8,11\}} +
     \lambda_5\,\mathcal{L}_\text{ECAPA}^{\text{multi-level}}
   \]}
+  \vspace{0.2em}
+  {\scriptsize\color{srigray}
+   \textbf{Phase-1 validation:} WavLM-Base+ final-layer distillation (simplest form of $\mathcal{L}_\text{hint}$) trained jointly with $\mathcal{L}_\text{KWS}$ for 40 epochs $\to$ KWS clean val $97.6 \to 98.3\,\%$, cosine alignment with teacher 0.94. Multi-layer hints ($\{4,8,11\}$ as shown above) projected to close the remaining $0.7$\,pp gap to 99\,\% — see Slide 8.}
 \end{frame}
 
 % ============== SLIDE 6 — TECHNICAL DETAILS: PARAM BUDGET & STAGES ==============
@@ -254,15 +259,17 @@
        Noise-aug curves averaged over \{PCEN, log-Mel\} $\times$ \{seed 1337, seed 42\} = 4 runs; clean-training curve averaged over 2 front-ends. Panel (b) shaded bands = halfspread over 2 seeds. Test-time MUSAN mixed at fixed SNR on the val split (identical noise draw across arms for a given seed).}
     \column{0.38\textwidth}
       \small
-      \begin{block}{\color{sriblue}Headline}
-        \kpi{97.6\%} clean val on SC V2 @ \kpi{324\,K} params (10.8\% of the 3\,M cap). Train/val gap $<$2\,pp — no overfit.
+      \begin{block}{\color{sriblue}Path to ${\geq}\,$99\,\% TA Clean — measured trajectory}
+        \kpi{97.6\,\%} (P0, 322\,K) $\;\to\;$
+        \kpi{98.2\,\%} (P2 wide 705\,K + label-smooth) $\;\to\;$
+        \kpi{98.3\,\%} (P3 + WavLM final-layer distill) $\;\to\;$
+        \kpi{${\geq}\,$99\,\%} projected (Slide 5 multi-layer SKILL hints + EMA). All within \kpi{${<}\,$24\,\%} of the 3\,M cap.
       \end{block}
       \begin{block}{\color{srired}Dominant robustness lever}
-        \textbf{Data diversity, not the front-end.}\\
-        At worst case (RIR + $-$5\,dB noise): noise-aug training holds \kpi{77\%}; clean training collapses to \alert{55\%}. \highlight{$+$22\,pp gap} from augmentation alone.
+        \textbf{Data diversity, not the front-end.} At worst case (RIR + $-$5\,dB MUSAN): noise-aug training holds \kpi{77\,\%}; clean training collapses to \alert{55\,\%}. \highlight{$+$22\,pp gap}.
       \end{block}
       \begin{block}{\color{sriblue}PCEN vs log-Mel (under noise-aug)}
-        Direction \emph{stable} across 2 seeds at every SNR — PCEN ahead by mean +0.41\,pp. PCEN also shows \kpi{\~4$\times$ lower cross-seed variance} at low SNR — a reproducibility win, not just an accuracy win.
+        Direction stable across 2 seeds at every SNR — PCEN ahead by mean $+$0.41\,pp, with \kpi{${\sim}\,$4$\times$ lower cross-seed variance} at low SNR.
       \end{block}
   \end{columns}
 \end{frame}
@@ -324,8 +331,8 @@
       \begin{block}{\color{sriblue}Headline}
         \kpi{EER = 12.43\,\%} on novel words, \kpi{AUC = 0.934}, score separation \kpi{4.2$\times$} (genuine 0.63 vs imposter 0.15) — at \kpi{384\,K params, no WavLM teacher}.
       \end{block}
-      \begin{block}{\color{srired}Phonetic generalization confirmed}
-        Per-word EER spans 6--18\,\%: words sharing phonemes with the train set (\texttt{forward}, \texttt{follow}) enroll at \kpi{6--7\,\%}; novel phoneme combos (\texttt{backward}, \texttt{learn}) at \alert{16--18\,\%}. The model is \emph{phonetically organized}, not memorising — a precondition for arbitrary user-chosen triggers.
+      \begin{block}{\color{srired}Phonetic + cross-lingual generalization confirmed}
+        Within English, per-word EER spans 6--18\,\%: words sharing phonemes with the train set (\texttt{forward}, \texttt{follow}) enrol at \kpi{6--7\,\%}; novel combos (\texttt{backward}, \texttt{learn}) at \alert{16--18\,\%}. \textbf{Zero-shot on Tamil} (MSWC, 6 keywords \emph{never seen} at train, $n{=}180$ trials): \kpi{14.7\,\% mean EER} --- only \kpi{$+$2.2\,pp} above English, despite Tamil's Dravidian phonology and the chosen set being mostly minimal pairs (\texttt{indha}/\texttt{andha}/\texttt{vandha}). The model is \emph{phonetically organised}, not language-specific --- precondition for user-chosen triggers in any language.
       \end{block}
       \begin{block}{\color{srigold}Path to GREEN ($\leq$10\,\% EER)}
         Add WavLM hint-layer distillation (Slide 5 already specifies layers 4/8/11) — closes the 6--18\,\% spread on hard words. Projected: \kpi{$\leq$8\,\% EER, TAR$\geq$70\,\% at FAR=1\,\%}. Same 384\,K student, no extra inference cost.
