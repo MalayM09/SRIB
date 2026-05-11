@@ -141,7 +141,7 @@ def add_header(slide, title):
     add_rect(slide, 0, HEADER_H, SLIDE_W, Inches(0.04), SRI_GOLD)
 
 
-def add_footer(slide, page_num, total=12):
+def add_footer(slide, page_num, total=17):
     add_text(
         slide,
         SLIDE_W - Inches(1.5), SLIDE_H - Inches(0.35),
@@ -194,8 +194,8 @@ def body_para(text, size=11, color=BODY_GRAY, space_after=2, **kw):
 # ──────────────────────────────────────────────────────────────────────────────
 # SLIDE BUILDERS
 # ──────────────────────────────────────────────────────────────────────────────
-def slide_1_team(prs):
-    s = blank_slide(prs, "Team Introduction", 1)
+def slide_1_team(prs, page):
+    s = blank_slide(prs, "Team Introduction", page)
 
     # Team name card (full width)
     add_text(s, Inches(0.5), Inches(1.05), Inches(12.3), Inches(0.4),
@@ -238,8 +238,8 @@ def slide_1_team(prs):
     add_text(s, Inches(0.9), Inches(3.30), Inches(11.5), Inches(3.4), paras)
 
 
-def slide_2_problem(prs):
-    s = blank_slide(prs, "Problem Statement", 2)
+def slide_2_problem(prs, page):
+    s = blank_slide(prs, "Problem Statement", page)
 
     # Selected problem (short card)
     add_text(s, Inches(0.5), Inches(1.05), Inches(12.3), Inches(0.4),
@@ -312,8 +312,8 @@ def slide_2_problem(prs):
                  kpi_w - Inches(0.4), kpi_h - Inches(0.2), paras)
 
 
-def slide_3_solution_high(prs):
-    s = blank_slide(prs, "Proposed Solution — High Level", 3)
+def slide_3_solution_high(prs, page):
+    s = blank_slide(prs, "Proposed Solution — High Level", page)
 
     # One-sentence summary
     add_card(s, Inches(0.5), Inches(1.05), Inches(12.3), Inches(0.95),
@@ -376,8 +376,8 @@ def slide_3_solution_high(prs):
                    "color": color}])
 
 
-def slide_4_architecture(prs):
-    s = blank_slide(prs, "Technical Details — System Architecture", 4)
+def slide_4_architecture(prs, page):
+    s = blank_slide(prs, "Technical Details — System Architecture", page)
 
     # Image (wide aspect 5.94)
     img_x = Inches(0.4)
@@ -427,8 +427,8 @@ def slide_4_architecture(prs):
                  ann_w - Inches(0.5), ann_h - Inches(0.7), body_paras)
 
 
-def slide_5_distillation(prs):
-    s = blank_slide(prs, "Technical Details — Multi-Teacher Knowledge Distillation", 5)
+def slide_5_distillation(prs, page):
+    s = blank_slide(prs, "Technical Details — Multi-Teacher Knowledge Distillation", page)
 
     # Image (aspect 2.14, wider than tall)
     img_x = Inches(0.4)
@@ -477,8 +477,8 @@ def slide_5_distillation(prs):
              anchor="middle")
 
 
-def slide_6_params_stages(prs):
-    s = blank_slide(prs, "Technical Details — Parameter Budget & Training Stages", 6)
+def slide_6_params_stages(prs, page):
+    s = blank_slide(prs, "Technical Details — Parameter Budget & Training Stages", page)
 
     # Left: param budget figure
     img_max_w = Inches(6.0)
@@ -547,10 +547,10 @@ def slide_6_params_stages(prs):
              ]}])
 
 
-def slide_7_phase1_kws(prs):
+def slide_7_phase1_kws(prs, page):
     s = blank_slide(prs,
                     "Phase-1 Empirical — KWS Backbone + Custom-Word Generalization",
-                    7)
+                    page)
 
     # Left: trajectory + figure 10 (custom word)
     left_w = Inches(7.4)
@@ -652,10 +652,10 @@ def slide_7_phase1_kws(prs):
                "size": 11, "color": BODY_GRAY}])
 
 
-def slide_8_phase1_deploy_babble(prs):
+def slide_8_phase1_deploy_babble(prs, page):
     s = blank_slide(prs,
                     "Phase-1 Empirical — Deployment Latency & Cocktail-Party",
-                    8)
+                    page)
 
     # Left: deployment figure + side card
     add_image_fit(s, ILLUS_DIR / "11_deploy_metrics.png",
@@ -725,8 +725,8 @@ def slide_8_phase1_deploy_babble(prs):
               ]}])
 
 
-def slide_9_novelty(prs):
-    s = blank_slide(prs, "Novelty & Innovation", 9)
+def slide_9_novelty(prs, page):
+    s = blank_slide(prs, "Novelty & Innovation", page)
 
     # Top card: core novelty
     add_card(s, Inches(0.5), Inches(1.05), Inches(12.3), Inches(1.95),
@@ -754,21 +754,22 @@ def slide_9_novelty(prs):
     sup_h = Inches(1.85)
 
     items = [
-        ("Online τₛ calibration during training",
-         "Every 500 steps we re-estimate the deployment threshold on a "
-         "held-out impostor pool and feed FRR-at-target-FAR back as a soft "
-         "penalty. Bakes the FA < 1 / hr operating point into the embedding "
-         "geometry."),
         ("Layer-ensemble WavLM distillation",
-         "Three learnable softmax weights over layers {4, 8, 11} — beats "
-         "single-layer choice (SKILL, 2024). Phase-1 validated at the "
-         "final-layer simplest form (+0.7 pp KWS clean)."),
+         "Three learnable softmax weights over WavLM layers {4, 8, 11} — "
+         "beats single-layer choice (SKILL, Interspeech 2024). Phase-1 "
+         "validated at the final-layer simplest form (+0.7 pp KWS clean)."),
         ("Multi-level ECAPA distillation",
-         "Block-2 + block-3 + final embedding — ~5 % relative EER reduction "
-         "over final-only KD."),
+         "Cosine on final embedding + MSE on block-2 and block-3 features "
+         "(projected via 1×1 conv) — ~5 % relative EER reduction over "
+         "final-only KD."),
         ("Phonetic confusable hard-negative mining",
          "TIMIT phone-confusion-weighted Levenshtein on G2P output, sampled "
          "at 3× during training — directly targets the FA < 1 / hr risk."),
+        ("Considered & rejected alternatives",
+         "Audio Mamba — 5× BC-ResNet params for equal clean acc., deploy "
+         "immature.  ·  LEAF / SincNet — only PCEN actually trains; already "
+         "covered.  ·  GRL adversarial — removes the speaker signal we need.  "
+         "·  Deep cross-attn — 4× compute, breaks xRT budget."),
     ]
     for idx, (title, body) in enumerate(items):
         x = sup_x[idx % 2]
@@ -782,8 +783,8 @@ def slide_9_novelty(prs):
                  [{"text": body, "size": 11, "color": BODY_GRAY}])
 
 
-def slide_10_datasets(prs):
-    s = blank_slide(prs, "Open Datasets — Used & To Be Published", 10)
+def slide_10_datasets(prs, page):
+    s = blank_slide(prs, "Open Datasets — Used & To Be Published", page)
 
     # Used table (top)
     add_text(s, Inches(0.5), Inches(1.05), Inches(12.3), Inches(0.4),
@@ -833,8 +834,8 @@ def slide_10_datasets(prs):
              ]}])
 
 
-def slide_11_models(prs):
-    s = blank_slide(prs, "Open Models — Used & Developed", 11)
+def slide_11_models(prs, page):
+    s = blank_slide(prs, "Open Models — Used & Developed", page)
 
     # Used (teachers)
     add_text(s, Inches(0.5), Inches(1.05), Inches(12.3), Inches(0.4),
@@ -877,8 +878,8 @@ def slide_11_models(prs):
                   header_fill=SRI_GREEN)
 
 
-def slide_12_tools(prs):
-    s = blank_slide(prs, "AI / GenAI / Agentic Tools & Best Practices", 12)
+def slide_12_tools(prs, page):
+    s = blank_slide(prs, "AI / GenAI / Agentic Tools & Best Practices", page)
 
     # Tools (left column)
     add_text(s, Inches(0.5), Inches(1.05), Inches(6.0), Inches(0.4),
@@ -949,6 +950,349 @@ def slide_12_tools(prs):
     add_text(s, Inches(7.0), Inches(1.6), Inches(5.7), Inches(5.35), paras2)
 
 
+def slide_sv_branch_poc(prs, page):
+    s = blank_slide(prs, "Phase-1 Empirical — SV Branch POC", page)
+
+    # Left figure + caption
+    add_image_fit(s, ILLUS_DIR / "8_sv_progression.png",
+                  Inches(0.4), Inches(1.05), Inches(7.4), Inches(4.5))
+    add_text(s, Inches(0.4), Inches(5.7), Inches(7.4), Inches(1.4),
+             [{"text": "Trained on VoxCeleb1 dev (1 211 speakers, 24 K "
+                       "utterances), evaluated on the canonical VoxCeleb1-O "
+                       "trial list (37 720 same / different pairs). Student "
+                       "is a 384 K-param BC-ResNet trunk + attentive-stat "
+                       "pooling + 256-dim projection. Teacher: pretrained "
+                       "resemblyzer (GE2E-LSTM).",
+               "size": 10, "italic": True, "color": SRI_GRAY}])
+
+    # Right: 3 stacked cards
+    rx = Inches(8.0)
+    rw = Inches(4.95)
+
+    add_card(s, rx, Inches(1.05), rw, Inches(1.65),
+             fill=ACCENT_BG_BLUE, border=SRI_BLUE)
+    add_text(s, rx + Inches(0.2), Inches(1.1), rw - Inches(0.4), Inches(1.6),
+             [{"text": "Current state", "size": 13, "bold": True,
+               "color": SRI_BLUE, "space_after": 4},
+              {"runs": [
+                  {"text": "10.64 % EER", "size": 14, "bold": True,
+                   "color": SRI_BLUE},
+                  {"text": " on VoxCeleb1-O after 40 epochs joint "
+                           "distillation + Sub-center AAM-Softmax. Student "
+                           "is 384 K params — within budget for the joint "
+                           "student.",
+                   "size": 11, "color": BODY_GRAY},
+              ]}])
+
+    add_card(s, rx, Inches(2.85), rw, Inches(2.50),
+             fill=ACCENT_BG_RED, border=SRI_RED)
+    add_text(s, rx + Inches(0.2), Inches(2.9), rw - Inches(0.4), Inches(2.45),
+             [{"text": "Why v1 collapsed at 28.67 %", "size": 13, "bold": True,
+               "color": SRI_RED, "space_after": 4},
+              {"text": "Pure cosine distillation with no classification "
+                       "signal — embeddings cluster at a single point, no "
+                       "angular discrimination.",
+               "size": 11, "color": BODY_GRAY, "space_after": 4},
+              {"runs": [
+                  {"text": "Sub-center AAM with margin m = 0.2 ", "size": 11,
+                   "color": BODY_GRAY},
+                  {"text": "forces speakers into separate angular cones; ",
+                   "size": 11, "color": BODY_GRAY},
+                  {"text": "+18 pp gain", "size": 12, "bold": True,
+                   "color": SRI_RED},
+                  {"text": " from the loss change alone.", "size": 11,
+                   "color": BODY_GRAY},
+              ]}])
+
+    add_card(s, rx, Inches(5.50), rw, Inches(1.55),
+             fill=ACCENT_BG_GOLD, border=SRI_GOLD)
+    add_text(s, rx + Inches(0.2), Inches(5.55), rw - Inches(0.4), Inches(1.5),
+             [{"text": "Path to ≤ 5 % (v3)", "size": 13, "bold": True,
+               "color": SRI_GOLD, "space_after": 4},
+              {"text": "(i) Swap teacher to ECAPA-TDNN (1 % EER vs 4 %); "
+                       "(ii) tune λ_distill down; (iii) train on full "
+                       "VoxCeleb1 (~150 K utts) for 80 epochs.  Projected v3 "
+                       "EER: 4–5 %  —  competitive with x-vector at ~10× "
+                       "smaller.",
+               "size": 11, "color": BODY_GRAY}])
+
+
+def slide_film_rejection(prs, page):
+    s = blank_slide(prs, "Phase-1 Empirical — FiLM Rejection Trade-off", page)
+
+    # Left figure + caption
+    add_image_fit(s, ILLUS_DIR / "9_film_tradeoff.png",
+                  Inches(0.4), Inches(1.05), Inches(7.4), Inches(4.4))
+    add_text(s, Inches(0.4), Inches(5.6), Inches(7.4), Inches(1.5),
+             [{"text": "Joint KWS + SV + FiLM model (500 K params, 400 train "
+                       "speakers, 8 K utts, 30 epochs). Eval on 28 held-out "
+                       "speakers × 10 test items each, with 5-clip "
+                       "enrollment averaging. Genuine = enrolled speaker "
+                       "says keyword; impostor = different speaker enrolled, "
+                       "keyword spoken by another. Collapse ratio = mean "
+                       "P(true_kw)_impostor / mean P(true_kw)_genuine.",
+               "size": 10, "italic": True, "color": SRI_GRAY}])
+
+    rx = Inches(8.0)
+    rw = Inches(4.95)
+
+    add_card(s, rx, Inches(1.05), rw, Inches(2.05),
+             fill=ACCENT_BG_BLUE, border=SRI_BLUE)
+    add_text(s, rx + Inches(0.2), Inches(1.1), rw - Inches(0.4), Inches(2.0),
+             [{"text": "Mechanism validated", "size": 13, "bold": True,
+               "color": SRI_BLUE, "space_after": 4},
+              {"runs": [
+                  {"text": "95 % TAR + 86 % impostor-rejection", "size": 13,
+                   "bold": True, "color": SRI_BLUE},
+                  {"text": " at 14 % FAR when train + eval embedding "
+                           "distributions are matched (v2 own-audio "
+                           "diagnostic).",
+                   "size": 11, "color": BODY_GRAY},
+              ], "space_after": 4},
+              {"runs": [
+                  {"text": "Probability collapse ratio ", "size": 11,
+                   "color": BODY_GRAY},
+                  {"text": "0.20", "size": 13, "bold": True, "color": SRI_BLUE},
+                  {"text": "  —  impostors get ~5× less keyword confidence "
+                           "than genuine.",
+                   "size": 11, "color": BODY_GRAY},
+              ]}])
+
+    add_card(s, rx, Inches(3.25), rw, Inches(2.10),
+             fill=ACCENT_BG_RED, border=SRI_RED)
+    add_text(s, rx + Inches(0.2), Inches(3.3), rw - Inches(0.4), Inches(2.05),
+             [{"text": "Trade-off characterised", "size": 13, "bold": True,
+               "color": SRI_RED, "space_after": 4},
+              {"runs": [
+                  {"text": "Closing the train / eval gap (v3 paired "
+                           "enrollment) lifts TAR to 92 % but loosens "
+                           "rejection — FAR jumps to ",
+                   "size": 11, "color": BODY_GRAY},
+                  {"text": "48 %", "size": 13, "bold": True, "color": SRI_RED},
+                  {"text": ".  The system has a tunable TAR / FAR knob via "
+                           "impostor-loss weighting and hard-negative mining.",
+                   "size": 11, "color": BODY_GRAY},
+              ]}])
+
+    add_card(s, rx, Inches(5.50), rw, Inches(1.55),
+             fill=ACCENT_BG_GOLD, border=SRI_GOLD)
+    add_text(s, rx + Inches(0.2), Inches(5.55), rw - Inches(0.4), Inches(1.5),
+             [{"text": "Path to deployment (v4)", "size": 13, "bold": True,
+               "color": SRI_GOLD, "space_after": 4},
+              {"text": "Hard-negative mining + λ_imp = 2 + max-impostor-ratio "
+                       "0.7.  Target: ≥ 85 % TAR + ≤ 25 % FAR + ≥ 70 % REJ "
+                       "at the production operating point.",
+               "size": 11, "color": BODY_GRAY}])
+
+
+def slide_far_hero(prs, page):
+    s = blank_slide(prs, "Novelty & Innovation — FAR-in-the-Loop Training "
+                          "(hero)", page)
+
+    # Wide figure banner at top
+    add_image_fit(s, ILLUS_DIR / "3_far_in_loop.png",
+                  Inches(0.4), Inches(1.05), Inches(12.5), Inches(2.4))
+
+    # 3 column blocks below
+    col_y = Inches(3.65)
+    col_h = Inches(3.3)
+    col_w = Inches(4.0)
+    col_gap = Inches(0.13)
+    col_x = [Inches(0.5),
+             Inches(0.5) + col_w + col_gap,
+             Inches(0.5) + (col_w + col_gap) * 2]
+
+    blocks = [
+        ("Core invention", SRI_RED, ACCENT_BG_RED, [
+            "The deployment false-accept threshold τₛ is re-estimated every "
+            "500 training steps on a held-out impostor pool.",
+            "",
+            "The resulting FRR-at-target-FAR is fed back as a differentiable "
+            "soft penalty in the joint loss.",
+        ]),
+        ("Why it matters", SRI_BLUE, ACCENT_BG_BLUE, [
+            "Conventional pipelines treat τₛ as a post-hoc deployment knob.",
+            "",
+            "If the training loss never sees the FA < 1 / hr constraint, the "
+            "embedding geometry cannot cluster tightly enough for any "
+            "threshold to satisfy it.",
+            "",
+            "Ref: PK-MTL — vanilla BC-ResNet hits 64.32 % FRR in target-only "
+            "KWS; task-adaptive training brings this to 6.56 %.",
+        ]),
+        ("Result", SRI_GREEN, ACCENT_BG_GREEN, [
+            "The operating point is baked into the embedding geometry — "
+            "not tuned around it.",
+            "",
+            "FA < 1 / hr becomes a property of the trained model, not of a "
+            "post-hoc threshold sweep.",
+        ]),
+    ]
+    for x, (title, color, bg, paras) in zip(col_x, blocks):
+        add_card(s, x, col_y, col_w, col_h, fill=bg, border=color)
+        add_text(s, x + Inches(0.2), col_y + Inches(0.12),
+                 col_w - Inches(0.4), Inches(0.45),
+                 [{"text": title, "size": 13, "bold": True, "color": color}])
+        body = []
+        for line in paras:
+            if line == "":
+                body.append({"text": "", "size": 6, "color": BODY_GRAY,
+                             "space_after": 2})
+            else:
+                size = 10 if line.startswith("Ref:") else 11
+                italic = line.startswith("Ref:")
+                body.append({"text": line, "size": size, "italic": italic,
+                             "color": BODY_GRAY, "space_after": 4})
+        add_text(s, x + Inches(0.25), col_y + Inches(0.6),
+                 col_w - Inches(0.5), col_h - Inches(0.75), body)
+
+
+def slide_demo_plan(prs, page):
+    s = blank_slide(prs, "Deployment & Demo Plan (for Grand Finale)", page)
+
+    # Left: enrollment runtime figure (portrait — ar 0.72)
+    add_image_fit(s, ILLUS_DIR / "5_enrollment_runtime.png",
+                  Inches(0.4), Inches(1.05), Inches(5.2), Inches(5.9))
+    add_text(s, Inches(0.4), Inches(7.0), Inches(5.2), Inches(0.4),
+             [{"text": "Enrollment → runtime flow (5 utts ~30 s → "
+                       "stored ID prototype → online inference).",
+               "size": 9, "italic": True, "color": SRI_GRAY, "align": "center"}])
+
+    # Right: 2 cards (demo script + hardware)
+    rx = Inches(5.9)
+    rw = Inches(7.0)
+
+    add_card(s, rx, Inches(1.05), rw, Inches(4.6),
+             fill=ACCENT_BG_BLUE, border=SRI_BLUE)
+    add_text(s, rx + Inches(0.25), Inches(1.15), rw - Inches(0.5), Inches(4.5),
+             [{"text": "Live demo script", "size": 14, "bold": True,
+               "color": SRI_BLUE, "space_after": 8},
+              {"runs": [
+                  {"text": "1.  ", "size": 12, "bold": True, "color": SRI_BLUE},
+                  {"text": "Enroll a live judge:  ", "size": 12, "bold": True,
+                   "color": SRI_DARK},
+                  {"text": "5 clean utterances (~30 s) → stored speaker "
+                           "prototype.", "size": 12, "color": BODY_GRAY},
+              ], "space_after": 8},
+              {"runs": [
+                  {"text": "2.  ", "size": 12, "bold": True, "color": SRI_BLUE},
+                  {"text": "Clean trigger ", "size": 12, "bold": True,
+                   "color": SRI_DARK},
+                  {"text": "from the judge   →   ", "size": 12,
+                   "color": BODY_GRAY},
+                  {"text": "fires.", "size": 12, "bold": True,
+                   "color": SRI_GREEN},
+              ], "space_after": 8},
+              {"runs": [
+                  {"text": "3.  ", "size": 12, "bold": True, "color": SRI_BLUE},
+                  {"text": "Noisy trigger ", "size": 12, "bold": True,
+                   "color": SRI_DARK},
+                  {"text": "— traffic at −5 dB from phone speaker   →   ",
+                   "size": 12, "color": BODY_GRAY},
+                  {"text": "fires.", "size": 12, "bold": True,
+                   "color": SRI_GREEN},
+              ], "space_after": 8},
+              {"runs": [
+                  {"text": "4.  ", "size": 12, "bold": True, "color": SRI_BLUE},
+                  {"text": "Impostor ", "size": 12, "bold": True,
+                   "color": SRI_DARK},
+                  {"text": "(teammate) says the same word   →   ",
+                   "size": 12, "color": BODY_GRAY},
+                  {"text": "rejected.", "size": 12, "bold": True,
+                   "color": SRI_RED},
+              ], "space_after": 8},
+              {"runs": [
+                  {"text": "5.  ", "size": 12, "bold": True, "color": SRI_BLUE},
+                  {"text": "Confusable ", "size": 12, "bold": True,
+                   "color": SRI_DARK},
+                  {"text": "phrase (\"turn on\" vs \"turn off\")   →   ",
+                   "size": 12, "color": BODY_GRAY},
+                  {"text": "rejected.", "size": 12, "bold": True,
+                   "color": SRI_RED},
+              ]}])
+
+    add_card(s, rx, Inches(5.85), rw, Inches(1.45),
+             fill=ACCENT_BG_GOLD, border=SRI_GOLD)
+    add_text(s, rx + Inches(0.25), Inches(5.95), rw - Inches(0.5), Inches(1.35),
+             [{"text": "Hardware", "size": 13, "bold": True,
+               "color": SRI_GOLD, "space_after": 4},
+              {"runs": [
+                  {"text": "Raspberry Pi 4B ", "size": 12, "bold": True,
+                   "color": SRI_DARK},
+                  {"text": "(conservative spec) ", "size": 11,
+                   "color": BODY_GRAY},
+                  {"text": "or ", "size": 12, "color": BODY_GRAY},
+                  {"text": "Galaxy-class NPU via QNN", "size": 12, "bold": True,
+                   "color": SRI_DARK},
+                  {"text": ".  No network connection during demo — entirely "
+                           "on-device.",
+                   "size": 11, "color": BODY_GRAY},
+              ]}])
+
+
+def slide_closing(prs, page):
+    """Standout closing slide — navy background, white text."""
+    s = prs.slides.add_slide(prs.slide_layouts[6])
+    set_bg(s, SRI_DARK)
+
+    # Gold accent bar
+    add_rect(s, 0, Inches(2.6), SLIDE_W, Inches(0.08), SRI_GOLD)
+
+    # Big headline
+    add_text(s, Inches(0.8), Inches(1.0), SLIDE_W - Inches(1.6), Inches(1.5),
+             [{"text": "Closing the FA < 1 / hr gap on < 3 M params",
+               "size": 36, "bold": True,
+               "color": RGBColor(0xFF, 0xFF, 0xFF), "align": "center"}],
+             anchor="middle")
+
+    # Tagline pillars
+    add_text(s, Inches(0.8), Inches(3.0), SLIDE_W - Inches(1.6), Inches(0.6),
+             [{"runs": [
+                 {"text": "FAR-in-the-Loop training", "size": 18,
+                  "bold": True, "color": RGBColor(0xFF, 0xFF, 0xFF)},
+                 {"text": "    ·    ", "size": 18,
+                  "color": SRI_GOLD},
+                 {"text": "FiLM-conditioned KWS", "size": 18,
+                  "bold": True, "color": RGBColor(0xFF, 0xFF, 0xFF)},
+                 {"text": "    ·    ", "size": 18,
+                  "color": SRI_GOLD},
+                 {"text": "Multi-teacher distillation", "size": 18,
+                  "bold": True, "color": RGBColor(0xFF, 0xFF, 0xFF)},
+             ], "align": "center"}])
+
+    # Measured anchors
+    add_text(s, Inches(0.8), Inches(4.0), SLIDE_W - Inches(1.6), Inches(1.6),
+             [{"runs": [
+                 {"text": "Phase-1 measured  ·  ", "size": 14, "italic": True,
+                  "color": RGBColor(0xCC, 0xD3, 0xE0)},
+                 {"text": "KWS clean 98.3 %", "size": 16, "bold": True,
+                  "color": SRI_GOLD},
+                 {"text": "  ·  ", "size": 14,
+                  "color": RGBColor(0xCC, 0xD3, 0xE0)},
+                 {"text": "English EER 12.4 %", "size": 16, "bold": True,
+                  "color": SRI_GOLD},
+                 {"text": "  ·  ", "size": 14,
+                  "color": RGBColor(0xCC, 0xD3, 0xE0)},
+                 {"text": "Tamil zero-shot 14.7 %", "size": 16, "bold": True,
+                  "color": SRI_GOLD},
+                 {"text": "  ·  ", "size": 14,
+                  "color": RGBColor(0xCC, 0xD3, 0xE0)},
+                 {"text": "Pi 4B INT8 12 ms", "size": 16, "bold": True,
+                  "color": SRI_GOLD},
+                 {"text": "  ·  ", "size": 14,
+                  "color": RGBColor(0xCC, 0xD3, 0xE0)},
+                 {"text": "499 K params (17 % cap)", "size": 16, "bold": True,
+                  "color": SRI_GOLD},
+             ], "align": "center"}])
+
+    # Bottom credit line
+    add_text(s, Inches(0.8), Inches(6.6), SLIDE_W - Inches(1.6), Inches(0.5),
+             [{"text": "Team MalayM09  ·  Malay Mishra  ·  BITS Pilani  ·  "
+                       "Problem PS04  ·  Apache-2.0",
+               "size": 13, "italic": True,
+               "color": RGBColor(0xCC, 0xD3, 0xE0), "align": "center"}])
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # TABLE HELPER
 # ──────────────────────────────────────────────────────────────────────────────
@@ -988,18 +1332,23 @@ def build():
     prs.slide_width = SLIDE_W
     prs.slide_height = SLIDE_H
 
-    slide_1_team(prs)
-    slide_2_problem(prs)
-    slide_3_solution_high(prs)
-    slide_4_architecture(prs)
-    slide_5_distillation(prs)
-    slide_6_params_stages(prs)
-    slide_7_phase1_kws(prs)
-    slide_8_phase1_deploy_babble(prs)
-    slide_9_novelty(prs)
-    slide_10_datasets(prs)
-    slide_11_models(prs)
-    slide_12_tools(prs)
+    slide_1_team(prs, 1)
+    slide_2_problem(prs, 2)
+    slide_3_solution_high(prs, 3)
+    slide_4_architecture(prs, 4)
+    slide_5_distillation(prs, 5)
+    slide_6_params_stages(prs, 6)
+    slide_7_phase1_kws(prs, 7)
+    slide_sv_branch_poc(prs, 8)
+    slide_film_rejection(prs, 9)
+    slide_8_phase1_deploy_babble(prs, 10)
+    slide_far_hero(prs, 11)
+    slide_9_novelty(prs, 12)
+    slide_10_datasets(prs, 13)
+    slide_11_models(prs, 14)
+    slide_demo_plan(prs, 15)
+    slide_12_tools(prs, 16)
+    slide_closing(prs, 17)
 
     out = Path(__file__).resolve().parent / "AX_Hackathon_Phase1_Blueprint_FILLED.pptx"
     prs.save(out)
