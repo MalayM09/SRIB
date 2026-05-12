@@ -141,7 +141,7 @@ def add_header(slide, title):
     add_rect(slide, 0, HEADER_H, SLIDE_W, Inches(0.04), SRI_GOLD)
 
 
-def add_footer(slide, page_num, total=17):
+def add_footer(slide, page_num, total=18):
     add_text(
         slide,
         SLIDE_W - Inches(1.5), SLIDE_H - Inches(0.35),
@@ -219,21 +219,17 @@ def slide_1_team(prs, page):
         ], "space_after": 8},
         {"runs": [
             {"text": "Department  ", "size": 13, "bold": True, "color": LABEL_BLUE},
-            {"text": "Electronics & Communication / CS dual",
+            {"text": "Computer Science",
              "size": 13, "color": BODY_GRAY},
         ], "space_after": 8},
         {"runs": [
             {"text": "Year  ", "size": 13, "bold": True, "color": LABEL_BLUE},
-            {"text": "Pre-final year", "size": 13, "color": BODY_GRAY},
+            {"text": "Final year", "size": 13, "color": BODY_GRAY},
         ], "space_after": 8},
         {"runs": [
             {"text": "Email  ", "size": 13, "bold": True, "color": LABEL_BLUE},
-            {"text": "—  (filled at submission)", "size": 13, "color": BODY_GRAY},
+            {"text": "f20220116@pilani.bits-pilani.ac.in", "size": 13, "color": BODY_GRAY},
         ], "space_after": 8},
-        {"runs": [
-            {"text": "GitHub  ", "size": 13, "bold": True, "color": LABEL_BLUE},
-            {"text": "github.com/MalayM09/SRIB", "size": 13, "color": BODY_GRAY},
-        ]},
     ]
     add_text(s, Inches(0.9), Inches(3.30), Inches(11.5), Inches(3.4), paras)
 
@@ -901,8 +897,7 @@ def slide_12_tools(prs, page):
         ("Google kws_streaming",
          "reference for stateful streaming inference."),
         ("Claude Code (Anthropic CLI)",
-         "agentic AI pair-programmer used throughout for code generation, "
-         "blueprint iteration, multilingual eval, and PPTX rendering."),
+         "Agentic AI helper and companion"),
     ]
     paras = []
     for name, desc in tools:
@@ -1293,6 +1288,109 @@ def slide_closing(prs, page):
                "color": RGBColor(0xCC, 0xD3, 0xE0), "align": "center"}])
 
 
+def slide_glossary(prs, page):
+    """Appendix — 6-card glossary grouped by category."""
+    s = blank_slide(prs, "Appendix — Glossary", page)
+
+    # 3 columns × 2 rows of cards
+    card_w = Inches(4.10)
+    card_h = Inches(2.95)
+    gap_x = Inches(0.13)
+    gap_y = Inches(0.13)
+    origin_x = Inches(0.45)
+    origin_y = Inches(1.05)
+    positions = [
+        (origin_x + (card_w + gap_x) * c, origin_y + (card_h + gap_y) * r)
+        for r in (0, 1) for c in (0, 1, 2)
+    ]
+
+    categories = [
+        ("Frontend & Architecture", SRI_BLUE, ACCENT_BG_BLUE, [
+            ("PCEN",      "Per-Channel Energy Normalization — learnable frontend"),
+            ("LEAF",      "Learnable Auditory Frontend"),
+            ("BC-ResNet", "Broadcast Residual Network — compact CNN for KWS"),
+            ("TRM",       "Task Representation Module — branch decoupler"),
+            ("MQMHA",     "Multi-Query Multi-Head Attention pooling"),
+            ("FiLM",      "Feature-wise Linear Modulation (γ scale + β shift)"),
+            ("stop-grad", "edge that blocks back-propagation"),
+        ]),
+        ("Losses & Training", SRI_RED, ACCENT_BG_RED, [
+            ("KD",            "Knowledge Distillation"),
+            ("Focal CE",      "Focal Cross-Entropy"),
+            ("AAM-Softmax",   "Additive Angular Margin Softmax"),
+            ("Sub-center",    "AAM variant — handles label noise (K=3 cones)"),
+            ("KL",            "Kullback–Leibler divergence"),
+            ("L_hint",        "feature-matching distillation loss"),
+            ("T,  λᵢ,  m",    "distill temperature  ·  loss weights  ·  margin"),
+            ("GRL",           "Gradient Reversal Layer"),
+        ]),
+        ("Metrics", SRI_GREEN, ACCENT_BG_GREEN, [
+            ("KWS, SV",     "Keyword Spotting  ·  Speaker Verification"),
+            ("TA / FA",     "True / False Acceptance (event)"),
+            ("TAR / FAR",   "True / False Acceptance Rate (%)"),
+            ("FRR",         "False Rejection Rate"),
+            ("EER",         "Equal Error Rate (FAR = FRR crossover)"),
+            ("AUC",         "Area Under ROC Curve"),
+            ("REJ",         "impostor-rejection rate"),
+            ("pp,  xRT,  SNR", "percentage pts  ·  real-time factor  ·  signal/noise (dB)"),
+        ]),
+        ("Datasets & Models", SRI_GOLD, ACCENT_BG_GOLD, [
+            ("SC V2",        "Google Speech Commands v0.02 (KWS corpus)"),
+            ("MSWC",         "MLCommons Spoken Words Corpus (multilingual)"),
+            ("VoxCeleb1-O",  "Original VoxCeleb1 trial list (37 720 pairs)"),
+            ("MUSAN",        "Music-Speech-Noise corpus (noise augmentation)"),
+            ("RIR",          "Room Impulse Response (far-field simulation)"),
+            ("WavLM",        "Microsoft pretrained speech encoder"),
+            ("ECAPA-TDNN",   "pretrained speaker-verification model"),
+            ("XTTS-v2 / g2p-en", "Coqui multilingual TTS  ·  English G2P"),
+        ]),
+        ("Deployment", SRI_DARK, RGBColor(0xEE, 0xF1, 0xF7), [
+            ("ONNX",  "Open Neural Network Exchange (export format)"),
+            ("ORT",   "ONNX Runtime — inference engine"),
+            ("PTQ",   "Post-Training Quantization"),
+            ("QAT",   "Quantization-Aware Training"),
+            ("INT8",  "8-bit integer (vs FP32)"),
+            ("Pi 4B", "Raspberry Pi 4 Model B — conservative edge target"),
+            ("QNN",   "Qualcomm Neural Network SDK"),
+            ("NPU",   "Neural Processing Unit (on-device accelerator)"),
+        ]),
+        ("Cited Work & Misc", SRI_BLUE, ACCENT_BG_BLUE, [
+            ("SKILL",     "layer-ensemble distillation, Interspeech 2024"),
+            ("PK-MTL",    "Per-Keyword Multi-Task Learning  (arXiv:2206.13708)"),
+            ("GE2E",      "Generalized End-to-End speaker loss"),
+            ("TPE",       "Tree-structured Parzen Estimator (Optuna sampler)"),
+            ("LLM",       "Large Language Model"),
+            ("τₛ",        "speaker decision threshold (FAR-in-the-Loop target)"),
+            ("Apache-2.0, CC-BY, MIT, CPML", "open-source licence shorthands"),
+        ]),
+    ]
+
+    for (x, y), (title, color, bg, entries) in zip(positions, categories):
+        add_card(s, x, y, card_w, card_h, fill=bg, border=color)
+        # Category title
+        add_text(s, x + Inches(0.18), y + Inches(0.08),
+                 card_w - Inches(0.36), Inches(0.32),
+                 [{"text": title, "size": 12, "bold": True, "color": color}])
+        # Entries
+        paras = []
+        for term, defn in entries:
+            paras.append({"runs": [
+                {"text": term, "size": 9.5, "bold": True, "color": SRI_DARK},
+                {"text": "   " + defn, "size": 9, "color": BODY_GRAY},
+            ], "space_after": 2})
+        add_text(s, x + Inches(0.20), y + Inches(0.44),
+                 card_w - Inches(0.4), card_h - Inches(0.55),
+                 paras, margin=0.04)
+
+    # Bottom note
+    add_text(s, Inches(0.45), Inches(7.18),
+             SLIDE_W - Inches(0.9), Inches(0.28),
+             [{"text": "Reference appendix — terms used across Slides 2–17. "
+                       "Bolded acronym  ·  full expansion  ·  context.",
+               "size": 9, "italic": True, "color": SRI_GRAY,
+               "align": "center"}])
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # TABLE HELPER
 # ──────────────────────────────────────────────────────────────────────────────
@@ -1349,6 +1447,7 @@ def build():
     slide_demo_plan(prs, 15)
     slide_12_tools(prs, 16)
     slide_closing(prs, 17)
+    slide_glossary(prs, 18)
 
     out = Path(__file__).resolve().parent / "AX_Hackathon_Phase1_Blueprint_FILLED.pptx"
     prs.save(out)
